@@ -308,42 +308,177 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <div id="tierconsumption" class="section level3">
 <h3>TierConsumption</h3>
 <p>This function allocates water consumption across tiers. <code>nt</code> is the number of tiers in the rate structure, <code>usage</code> is a vector of usage values and <code>width</code> inputs are the widths of the various tiers. You only need to input <code>nt-1</code> widths as the width of the highest tier is infinite. In the case of water budget rates, <code>width</code> parameters can be vectors corresponding to indvidual tier widths.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1">?TierConsumption </a>
-<a class="sourceLine" id="cb1-2" title="2"><span class="co">#&gt; starting httpd help server ... done</span></a>
-<a class="sourceLine" id="cb1-3" title="3"></a>
-<a class="sourceLine" id="cb1-4" title="4"><span class="kw">TierConsumption</span>(<span class="dt">nt =</span> <span class="dv">2</span>, <span class="dt">usage =</span> <span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">20</span>), <span class="dt">t1width =</span> <span class="dv">10</span>)</a>
-<a class="sourceLine" id="cb1-5" title="5"><span class="co">#&gt; $t1use</span></a>
-<a class="sourceLine" id="cb1-6" title="6"><span class="co">#&gt;  [1]  1  2  3  4  5  6  7  8  9 10 10 10 10 10 10 10 10 10 10 10</span></a>
-<a class="sourceLine" id="cb1-7" title="7"><span class="co">#&gt; </span></a>
-<a class="sourceLine" id="cb1-8" title="8"><span class="co">#&gt; $t2use</span></a>
-<a class="sourceLine" id="cb1-9" title="9"><span class="co">#&gt;  [1]  0  0  0  0  0  0  0  0  0  0  1  2  3  4  5  6  7  8  9 10</span></a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">TierConsumption</span>(<span class="dt">nt =</span> <span class="dv">2</span>, <span class="dt">usage =</span> <span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">20</span>), <span class="dt">t1width =</span> <span class="dv">10</span>)</a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="co">#&gt; $t1use</span></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="co">#&gt;  [1]  1  2  3  4  5  6  7  8  9 10 10 10 10 10 10 10 10 10 10 10</span></a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb1-5" title="5"><span class="co">#&gt; $t2use</span></a>
+<a class="sourceLine" id="cb1-6" title="6"><span class="co">#&gt;  [1]  0  0  0  0  0  0  0  0  0  0  1  2  3  4  5  6  7  8  9 10</span></a></code></pre></div>
 </div>
 <div id="waterbill" class="section level3">
 <h3>WaterBill</h3>
+<p><code>WaterBill</code> calculates water bills for customer usage. In this vignette we demonstrate the function on a sample data set of simulted water usage. This function has two main uses, (a) calculating water bills under the current rate structure and (b) calculating water bills under the current and proposed rate structures. The dataframe used on this function, <code>df</code> needs to have a column titled <code>usage</code> for customer usage.</p>
+<div id="uniform-rate-structures" class="section level5">
+<h5>Uniform Rate Structures</h5>
+<p>When calculating water bills for customers of a water agency, the rates either vary by customer type or they are constant. When calling the function, setting <code>uniform_rates = T</code> will apply a standard rate structure across all customers. In this case, be sure to include the rate structure in the call of the function. <code>fxd_i</code> refers to fixed rates for rate structures <code>i = {c, p}</code> and <code>vol_i</code> is a vector of volumetric rates for rate structures <code>i = {c, p}</code>.</p>
+</div>
+<div id="current-rate-structure-only" class="section level5">
+<h5>Current Rate Structure Only</h5>
+<p>If you are interested only in calculating bills under one rate structure you can set <code>proposed_rates = F</code> when calling the function. Under this option, bills will be calculated only for the current rate structure.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">set.seed</span>(<span class="dv">8</span>)</a>
+<a class="sourceLine" id="cb2-2" title="2">cust &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">usage =</span> <span class="kw">rbeta</span>(<span class="dv">500</span>, <span class="dv">5</span>, <span class="dv">2</span>) <span class="op">*</span><span class="st"> </span><span class="kw">rnorm</span>(<span class="dv">500</span>, <span class="dt">mean =</span> <span class="dv">10</span>, <span class="dt">sd =</span> <span class="dv">5</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">usage =</span> <span class="kw">ifelse</span>(usage <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span>, <span class="dv">0</span>, usage))</a>
+<a class="sourceLine" id="cb2-4" title="4"></a>
+<a class="sourceLine" id="cb2-5" title="5">df &lt;-<span class="st"> </span><span class="kw">WaterBill</span>(cust, <span class="dt">uniform_rates =</span> T, <span class="dt">nt_c =</span> <span class="dv">3</span>,<span class="dt">wdths_c =</span> <span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">5</span>), <span class="dt">fxd_c =</span> <span class="dv">20</span>, <span class="dt">vol_c =</span> <span class="kw">c</span>(<span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>), </a>
+<a class="sourceLine" id="cb2-6" title="6">                <span class="dt">proposed_rates =</span> F) </a>
+<a class="sourceLine" id="cb2-7" title="7"></a>
+<a class="sourceLine" id="cb2-8" title="8"><span class="kw">str</span>(df)</a>
+<a class="sourceLine" id="cb2-9" title="9"><span class="co">#&gt; &#39;data.frame&#39;:    500 obs. of  8 variables:</span></a>
+<a class="sourceLine" id="cb2-10" title="10"><span class="co">#&gt;  $ usage            : num  12.17 3.02 5 0 6.41 ...</span></a>
+<a class="sourceLine" id="cb2-11" title="11"><span class="co">#&gt;  $ t1_use_current   : num  5 3.02 5 0 5 ...</span></a>
+<a class="sourceLine" id="cb2-12" title="12"><span class="co">#&gt;  $ t2_use_current   : num  5 0 0 0 1.41 ...</span></a>
+<a class="sourceLine" id="cb2-13" title="13"><span class="co">#&gt;  $ t3_use_current   : num  2.17 0 0 0 0 ...</span></a>
+<a class="sourceLine" id="cb2-14" title="14"><span class="co">#&gt;  $ t1charges_current: num  20 15.1 30 0 25 ...</span></a>
+<a class="sourceLine" id="cb2-15" title="15"><span class="co">#&gt;  $ t2charges_current: num  30 0 0 0 5.63 ...</span></a>
+<a class="sourceLine" id="cb2-16" title="16"><span class="co">#&gt;  $ t3charges_current: num  10.9 0 0 0 0 ...</span></a>
+<a class="sourceLine" id="cb2-17" title="17"><span class="co">#&gt;  $ bill_current     : num  80.9 35.1 50 20 50.6 ...</span></a></code></pre></div>
+</div>
+<div id="current-and-proposed-rates" class="section level5">
+<h5>Current and Proposed Rates</h5>
+<p>Setting <code>proposed_rates = T</code> will include bill calculations for two bills as well as some comparisons between the bills from the two rate structures. Under this option, the price elasticity of demand is incorporated into bill calculations in the following steps:</p>
+<ol style="list-style-type: decimal">
+<li>The total bill is calculated under the current rate structure as <code>bill_current</code></li>
+<li>The total bill is calculated under the proposed rate structure as <code>bill_proposed</code></li>
+<li>Average prices are calculated for both rate structures</li>
+<li>The new usage level <code>usage_prime</code> is estimated based on the change in average price</li>
+<li>The total bill under the proposed rate structure is calculated with the <code>usage_prime</code></li>
+<li>The difference between bills between Step 1 and Step 5 is calculated.</li>
+</ol>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="co"># Current Rate Structure</span></a>
+<a class="sourceLine" id="cb3-2" title="2">ntiers_current &lt;-<span class="st"> </span><span class="dv">3</span></a>
+<a class="sourceLine" id="cb3-3" title="3">tierwidths_current &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">6</span>)</a>
+<a class="sourceLine" id="cb3-4" title="4">fixedcharge_current &lt;-<span class="st"> </span><span class="dv">25</span></a>
+<a class="sourceLine" id="cb3-5" title="5">volumetriccharges_current &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>)</a>
+<a class="sourceLine" id="cb3-6" title="6"></a>
+<a class="sourceLine" id="cb3-7" title="7"><span class="co"># Proposed Rate Structure</span></a>
+<a class="sourceLine" id="cb3-8" title="8">ntiers_proposed &lt;-<span class="st"> </span><span class="dv">4</span></a>
+<a class="sourceLine" id="cb3-9" title="9">tierwidths_proposed &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>)</a>
+<a class="sourceLine" id="cb3-10" title="10">fixedcharge_proposed &lt;-<span class="st"> </span><span class="dv">30</span></a>
+<a class="sourceLine" id="cb3-11" title="11">volumetriccharges_proposed &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">6</span>, <span class="dv">7</span>)</a>
+<a class="sourceLine" id="cb3-12" title="12"></a>
+<a class="sourceLine" id="cb3-13" title="13"><span class="co"># Elasticity parameter</span></a>
+<a class="sourceLine" id="cb3-14" title="14">el &lt;-<span class="st"> </span><span class="fl">-0.1</span></a>
+<a class="sourceLine" id="cb3-15" title="15"></a>
+<a class="sourceLine" id="cb3-16" title="16">df &lt;-<span class="st"> </span><span class="kw">WaterBill</span>(<span class="dt">df =</span> cust, <span class="dt">uniform_rates =</span> <span class="ot">TRUE</span>, <span class="dt">nt_c =</span> ntiers_current, <span class="dt">wdths_c =</span> tierwidths_current, </a>
+<a class="sourceLine" id="cb3-17" title="17">                <span class="dt">fxd_c =</span> fixedcharge_current, <span class="dt">vol_c =</span> volumetriccharges_current,</a>
+<a class="sourceLine" id="cb3-18" title="18">                <span class="dt">proposed_rates =</span> <span class="ot">TRUE</span>, <span class="dt">nt_p =</span> ntiers_proposed, <span class="dt">wdths_p =</span> tierwidths_proposed, </a>
+<a class="sourceLine" id="cb3-19" title="19">                <span class="dt">fxd_p =</span> fixedcharge_proposed,  <span class="dt">vol_p =</span> volumetriccharges_proposed) </a>
+<a class="sourceLine" id="cb3-20" title="20"></a>
+<a class="sourceLine" id="cb3-21" title="21"><span class="kw">str</span>(df)</a>
+<a class="sourceLine" id="cb3-22" title="22"><span class="co">#&gt; &#39;data.frame&#39;:    500 obs. of  30 variables:</span></a>
+<a class="sourceLine" id="cb3-23" title="23"><span class="co">#&gt;  $ usage             : num  12.17 3.02 5 0 6.41 ...</span></a>
+<a class="sourceLine" id="cb3-24" title="24"><span class="co">#&gt;  $ t1_use_current    : num  5 3.02 5 0 5 ...</span></a>
+<a class="sourceLine" id="cb3-25" title="25"><span class="co">#&gt;  $ t2_use_current    : num  6 0 0 0 1.41 ...</span></a>
+<a class="sourceLine" id="cb3-26" title="26"><span class="co">#&gt;  $ t3_use_current    : num  1.17 0 0 0 0 ...</span></a>
+<a class="sourceLine" id="cb3-27" title="27"><span class="co">#&gt;  $ t1_use_proposed   : num  2 2 2 0 2 2 2 2 2 2 ...</span></a>
+<a class="sourceLine" id="cb3-28" title="28"><span class="co">#&gt;  $ t2_use_proposed   : num  3 1.02 3 0 3 ...</span></a>
+<a class="sourceLine" id="cb3-29" title="29"><span class="co">#&gt;  $ t3_use_proposed   : num  4 0 0 0 1.41 ...</span></a>
+<a class="sourceLine" id="cb3-30" title="30"><span class="co">#&gt;  $ t4_use_proposed   : num  3.17 0 0 0 0 ...</span></a>
+<a class="sourceLine" id="cb3-31" title="31"><span class="co">#&gt;  $ t1charges_current : num  20 15.1 30 0 25 ...</span></a>
+<a class="sourceLine" id="cb3-32" title="32"><span class="co">#&gt;  $ t2charges_current : num  36 0 0 0 5.63 ...</span></a>
+<a class="sourceLine" id="cb3-33" title="33"><span class="co">#&gt;  $ t3charges_current : num  5.86 0 0 0 0 ...</span></a>
+<a class="sourceLine" id="cb3-34" title="34"><span class="co">#&gt;  $ t1charges_proposed: num  4 6 12 0 4 6 12 14 4 6 ...</span></a>
+<a class="sourceLine" id="cb3-35" title="35"><span class="co">#&gt;  $ t2charges_proposed: num  6 3.06 18 0 6 ...</span></a>
+<a class="sourceLine" id="cb3-36" title="36"><span class="co">#&gt;  $ t3charges_proposed: num  8 0 0 0 2.81 ...</span></a>
+<a class="sourceLine" id="cb3-37" title="37"><span class="co">#&gt;  $ t4charges_proposed: num  6.34 0 0 0 0 ...</span></a>
+<a class="sourceLine" id="cb3-38" title="38"><span class="co">#&gt;  $ bill_current      : num  86.9 40.1 55 25 55.6 ...</span></a>
+<a class="sourceLine" id="cb3-39" title="39"><span class="co">#&gt;  $ bill_proposed     : num  49.3 34.1 55 25 37.8 ...</span></a>
+<a class="sourceLine" id="cb3-40" title="40"><span class="co">#&gt;  $ avg_price_current : num  7.14 1.33e+01 1.10e+01 1.00e+08 8.68 ...</span></a>
+<a class="sourceLine" id="cb3-41" title="41"><span class="co">#&gt;  $ avg_price_proposed: num  4.05 1.13e+01 1.10e+01 1.00e+08 5.90 ...</span></a>
+<a class="sourceLine" id="cb3-42" title="42"><span class="co">#&gt;  $ usage_prime       : num  12.17 3.02 5 0 6.41 ...</span></a>
+<a class="sourceLine" id="cb3-43" title="43"><span class="co">#&gt;  $ t1_use_prime      : num  2 2 2 0 2 2 2 2 2 2 ...</span></a>
+<a class="sourceLine" id="cb3-44" title="44"><span class="co">#&gt;  $ t2_use_prime      : num  3 1.02 3 0 3 ...</span></a>
+<a class="sourceLine" id="cb3-45" title="45"><span class="co">#&gt;  $ t3_use_prime      : num  4 0 0 0 1.41 ...</span></a>
+<a class="sourceLine" id="cb3-46" title="46"><span class="co">#&gt;  $ t4_use_prime      : num  3.17 0 0 0 0 ...</span></a>
+<a class="sourceLine" id="cb3-47" title="47"><span class="co">#&gt;  $ t1charges_prime   : num  4 6 12 0 4 6 12 14 4 6 ...</span></a>
+<a class="sourceLine" id="cb3-48" title="48"><span class="co">#&gt;  $ t2charges_prime   : num  6 3.06 18 0 6 ...</span></a>
+<a class="sourceLine" id="cb3-49" title="49"><span class="co">#&gt;  $ t3charges_prime   : num  8 0 0 0 2.81 ...</span></a>
+<a class="sourceLine" id="cb3-50" title="50"><span class="co">#&gt;  $ t4charges_prime   : num  6.34 0 0 0 0 ...</span></a>
+<a class="sourceLine" id="cb3-51" title="51"><span class="co">#&gt;  $ bill_prime        : num  54.3 39.1 60 30 42.8 ...</span></a>
+<a class="sourceLine" id="cb3-52" title="52"><span class="co">#&gt;  $ perc_change_bill  : num  -0.3743 -0.026 0.0909 0.2 -0.2304 ...</span></a></code></pre></div>
+</div>
 </div>
 <div id="forecastmeters" class="section level3">
 <h3>ForecastMeters</h3>
+<p>This function automates the forecasting of meters by a group according to a linear time trend. The inputted dataframe must have three column - <code>date</code> which is a numeric column for year, <code>meter_size</code> which is the size of the meter, and <code>meters</code> the number of meters.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">set.seed</span>(<span class="dv">8</span>)</a>
+<a class="sourceLine" id="cb4-2" title="2">df &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">date =</span> <span class="dv">2009</span><span class="op">:</span><span class="dv">2018</span>,</a>
+<a class="sourceLine" id="cb4-3" title="3">                 <span class="dt">meter_size =</span> <span class="kw">c</span>(<span class="kw">rep</span>(<span class="st">&quot;0.75&quot;</span>, <span class="dv">10</span>), <span class="kw">rep</span>(<span class="st">&quot;1&quot;</span>, <span class="dv">10</span>)),</a>
+<a class="sourceLine" id="cb4-4" title="4">                 <span class="dt">meters =</span> <span class="kw">c</span>(<span class="kw">round</span>(<span class="kw">rbeta</span>(<span class="dv">10</span>, <span class="dv">5</span>, <span class="dv">2</span>) <span class="op">*</span><span class="st"> </span><span class="dv">1000</span>, <span class="dv">0</span>), <span class="kw">round</span>(<span class="kw">rbeta</span>(<span class="dv">10</span>, <span class="dv">8</span>, <span class="dv">1</span>) <span class="op">*</span><span class="st"> </span><span class="dv">250</span>, <span class="dv">0</span>)))</a>
+<a class="sourceLine" id="cb4-5" title="5"></a>
+<a class="sourceLine" id="cb4-6" title="6">df &lt;-<span class="st"> </span><span class="kw">ForecastMeters</span>(df, <span class="dt">t_0 =</span> <span class="dv">2018</span>, <span class="dt">t_final =</span> <span class="dv">2024</span>)</a>
+<a class="sourceLine" id="cb4-7" title="7"></a>
+<a class="sourceLine" id="cb4-8" title="8"><span class="kw">print</span>(df)</a>
+<a class="sourceLine" id="cb4-9" title="9"><span class="co">#&gt;    date meter_size meters         fc</span></a>
+<a class="sourceLine" id="cb4-10" title="10"><span class="co">#&gt; 1  2009       0.75    731     Actual</span></a>
+<a class="sourceLine" id="cb4-11" title="11"><span class="co">#&gt; 2  2010       0.75    514     Actual</span></a>
+<a class="sourceLine" id="cb4-12" title="12"><span class="co">#&gt; 3  2011       0.75    799     Actual</span></a>
+<a class="sourceLine" id="cb4-13" title="13"><span class="co">#&gt; 4  2012       0.75    813     Actual</span></a>
+<a class="sourceLine" id="cb4-14" title="14"><span class="co">#&gt; 5  2013       0.75    542     Actual</span></a>
+<a class="sourceLine" id="cb4-15" title="15"><span class="co">#&gt; 6  2014       0.75    736     Actual</span></a>
+<a class="sourceLine" id="cb4-16" title="16"><span class="co">#&gt; 7  2015       0.75    747     Actual</span></a>
+<a class="sourceLine" id="cb4-17" title="17"><span class="co">#&gt; 8  2016       0.75    886     Actual</span></a>
+<a class="sourceLine" id="cb4-18" title="18"><span class="co">#&gt; 9  2017       0.75    994     Actual</span></a>
+<a class="sourceLine" id="cb4-19" title="19"><span class="co">#&gt; 10 2018       0.75    819     Actual</span></a>
+<a class="sourceLine" id="cb4-20" title="20"><span class="co">#&gt; 11 2019       0.75    847 Forecasted</span></a>
+<a class="sourceLine" id="cb4-21" title="21"><span class="co">#&gt; 12 2020       0.75    875 Forecasted</span></a>
+<a class="sourceLine" id="cb4-22" title="22"><span class="co">#&gt; 13 2021       0.75    902 Forecasted</span></a>
+<a class="sourceLine" id="cb4-23" title="23"><span class="co">#&gt; 14 2022       0.75    930 Forecasted</span></a>
+<a class="sourceLine" id="cb4-24" title="24"><span class="co">#&gt; 15 2023       0.75    958 Forecasted</span></a>
+<a class="sourceLine" id="cb4-25" title="25"><span class="co">#&gt; 16 2024       0.75    986 Forecasted</span></a>
+<a class="sourceLine" id="cb4-26" title="26"><span class="co">#&gt; 17 2009          1    174     Actual</span></a>
+<a class="sourceLine" id="cb4-27" title="27"><span class="co">#&gt; 18 2010          1    232     Actual</span></a>
+<a class="sourceLine" id="cb4-28" title="28"><span class="co">#&gt; 19 2011          1    225     Actual</span></a>
+<a class="sourceLine" id="cb4-29" title="29"><span class="co">#&gt; 20 2012          1    248     Actual</span></a>
+<a class="sourceLine" id="cb4-30" title="30"><span class="co">#&gt; 21 2013          1    210     Actual</span></a>
+<a class="sourceLine" id="cb4-31" title="31"><span class="co">#&gt; 22 2014          1    211     Actual</span></a>
+<a class="sourceLine" id="cb4-32" title="32"><span class="co">#&gt; 23 2015          1    247     Actual</span></a>
+<a class="sourceLine" id="cb4-33" title="33"><span class="co">#&gt; 24 2016          1    222     Actual</span></a>
+<a class="sourceLine" id="cb4-34" title="34"><span class="co">#&gt; 25 2017          1    202     Actual</span></a>
+<a class="sourceLine" id="cb4-35" title="35"><span class="co">#&gt; 26 2018          1    223     Actual</span></a>
+<a class="sourceLine" id="cb4-36" title="36"><span class="co">#&gt; 27 2019          1    224 Forecasted</span></a>
+<a class="sourceLine" id="cb4-37" title="37"><span class="co">#&gt; 28 2020          1    226 Forecasted</span></a>
+<a class="sourceLine" id="cb4-38" title="38"><span class="co">#&gt; 29 2021          1    227 Forecasted</span></a>
+<a class="sourceLine" id="cb4-39" title="39"><span class="co">#&gt; 30 2022          1    228 Forecasted</span></a>
+<a class="sourceLine" id="cb4-40" title="40"><span class="co">#&gt; 31 2023          1    229 Forecasted</span></a>
+<a class="sourceLine" id="cb4-41" title="41"><span class="co">#&gt; 32 2024          1    231 Forecasted</span></a></code></pre></div>
 </div>
 <div id="forecastusage" class="section level3">
 <h3>ForecastUsage</h3>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"></a>
-<a class="sourceLine" id="cb2-2" title="2"><span class="co"># cust &lt;- read.csv(&quot;cust_data.csv&quot;, stringsAsFactors = F)</span></a>
-<a class="sourceLine" id="cb2-3" title="3"><span class="co"># </span></a>
-<a class="sourceLine" id="cb2-4" title="4"><span class="co"># df &lt;- cust</span></a>
-<a class="sourceLine" id="cb2-5" title="5"><span class="co"># </span></a>
-<a class="sourceLine" id="cb2-6" title="6"><span class="co"># ntier_proposed &lt;- 4</span></a>
-<a class="sourceLine" id="cb2-7" title="7"><span class="co"># ntier_current &lt;- 3</span></a>
-<a class="sourceLine" id="cb2-8" title="8"><span class="co"># tier_widths_current = c(8, 3)</span></a>
-<a class="sourceLine" id="cb2-9" title="9"><span class="co"># tier_widths_proposed = c(8, 5, 4)</span></a>
-<a class="sourceLine" id="cb2-10" title="10"><span class="co"># </span></a>
-<a class="sourceLine" id="cb2-11" title="11"><span class="co"># fixed_current &lt;- 45</span></a>
-<a class="sourceLine" id="cb2-12" title="12"><span class="co"># fixed_proposed &lt;- 50</span></a>
-<a class="sourceLine" id="cb2-13" title="13"><span class="co"># volrates_current &lt;- c(1.5, 2, 5)</span></a>
-<a class="sourceLine" id="cb2-14" title="14"><span class="co"># volrates_proposed &lt;- c(1.25, 2, 7.5, 9)</span></a>
-<a class="sourceLine" id="cb2-15" title="15"><span class="co"># </span></a>
-<a class="sourceLine" id="cb2-16" title="16"><span class="co"># UNIFORMWIDTHS &lt;- T</span></a>
-<a class="sourceLine" id="cb2-17" title="17"><span class="co"># elasticity &lt;- -0.1</span></a>
-<a class="sourceLine" id="cb2-18" title="18"><span class="co"># PROPOSED &lt;- T</span></a></code></pre></div>
+<p>This function forecasts per-meter usage based solely on a linear time trend. The inputted dataframe must have only two inputs: columns for date (year) and per-meter usage.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">set.seed</span>(<span class="dv">8</span>)</a>
+<a class="sourceLine" id="cb5-2" title="2">df &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">date =</span> <span class="dv">2009</span><span class="op">:</span><span class="dv">2018</span>, <span class="dt">use_pm =</span> <span class="kw">round</span>(<span class="kw">rbeta</span>(<span class="dv">10</span>, <span class="dv">5</span>, <span class="dv">2</span>) <span class="op">*</span><span class="st"> </span><span class="dv">20</span>, <span class="dv">0</span>))</a>
+<a class="sourceLine" id="cb5-3" title="3"></a>
+<a class="sourceLine" id="cb5-4" title="4">df &lt;-<span class="st"> </span><span class="kw">ForecastUsage</span>(df, <span class="dt">t_0 =</span> <span class="dv">2018</span>, <span class="dt">t_final =</span> <span class="dv">2024</span>)</a>
+<a class="sourceLine" id="cb5-5" title="5"></a>
+<a class="sourceLine" id="cb5-6" title="6"><span class="kw">print</span>(df)</a>
+<a class="sourceLine" id="cb5-7" title="7"><span class="co">#&gt;    date   use_pm         fc</span></a>
+<a class="sourceLine" id="cb5-8" title="8"><span class="co">#&gt; 1  2009 15.00000     Actual</span></a>
+<a class="sourceLine" id="cb5-9" title="9"><span class="co">#&gt; 2  2010 10.00000     Actual</span></a>
+<a class="sourceLine" id="cb5-10" title="10"><span class="co">#&gt; 3  2011 16.00000     Actual</span></a>
+<a class="sourceLine" id="cb5-11" title="11"><span class="co">#&gt; 4  2012 16.00000     Actual</span></a>
+<a class="sourceLine" id="cb5-12" title="12"><span class="co">#&gt; 5  2013 11.00000     Actual</span></a>
+<a class="sourceLine" id="cb5-13" title="13"><span class="co">#&gt; 6  2014 15.00000     Actual</span></a>
+<a class="sourceLine" id="cb5-14" title="14"><span class="co">#&gt; 7  2015 15.00000     Actual</span></a>
+<a class="sourceLine" id="cb5-15" title="15"><span class="co">#&gt; 8  2016 18.00000     Actual</span></a>
+<a class="sourceLine" id="cb5-16" title="16"><span class="co">#&gt; 9  2017 20.00000     Actual</span></a>
+<a class="sourceLine" id="cb5-17" title="17"><span class="co">#&gt; 10 2018 16.00000     Actual</span></a>
+<a class="sourceLine" id="cb5-18" title="18"><span class="co">#&gt; 11 2019 16.54545 Forecasted</span></a>
+<a class="sourceLine" id="cb5-19" title="19"><span class="co">#&gt; 12 2020 17.09091 Forecasted</span></a>
+<a class="sourceLine" id="cb5-20" title="20"><span class="co">#&gt; 13 2021 17.63636 Forecasted</span></a>
+<a class="sourceLine" id="cb5-21" title="21"><span class="co">#&gt; 14 2022 18.18182 Forecasted</span></a>
+<a class="sourceLine" id="cb5-22" title="22"><span class="co">#&gt; 15 2023 18.72727 Forecasted</span></a>
+<a class="sourceLine" id="cb5-23" title="23"><span class="co">#&gt; 16 2024 19.27273 Forecasted</span></a></code></pre></div>
 </div>
 
 
