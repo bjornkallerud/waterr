@@ -23,6 +23,18 @@ library(dplyr)
 
 In this vignette we document the use cases for the various functions within the `waterr` package.
 
+### convert_units
+
+`convert_units` converts the units of water consumption levels. The first argument is the numeric value or vector that you want to convert. The second and third arguments are the units to convert from and to, respectively.
+
+```{r}
+convert_units(100, from = "gallons", to = "hcf")
+```
+
+### allocate_consumption
+
+`allocate_consumption` distributes water usage across tiers in a tiered rate structure.
+
 ### TierConsumption
 
 This function allocates water consumption across tiers. `nt` is the number of tiers in the rate structure, `usage` is a vector of usage values and `width` inputs are the widths of the various tiers. You only need to input `nt-1` widths as the width of the highest tier is infinite. In the case of water budget rates, `width` parameters can be vectors corresponding to indvidual tier widths.
@@ -90,33 +102,3 @@ df <- WaterBill(df = cust, uniform_rates = TRUE, nt_c = ntiers_current, wdths_c 
 str(df)
 ```
 
-
-### ForecastMeters
-
-This function automates the forecasting of meters by a group according to a linear time trend. The inputted dataframe must have three column - `date` which is a numeric column for year, `meter_size` which is the size of the meter, and `meters` the number of meters. 
-
-```{r}
-set.seed(8)
-df <- data.frame(date = 2009:2018,
-                 meter_size = c(rep("0.75", 10), rep("1", 10)),
-                 meters = c(round(rbeta(10, 5, 2) * 1000, 0), round(rbeta(10, 8, 1) * 250, 0)))
-
-df <- ForecastMeters(df, t_0 = 2018, t_final = 2024)
-
-print(df)
-
-```
-
-### ForecastUsage
-
-This function forecasts per-meter usage based solely on a linear time trend. The inputted dataframe must have only two inputs: columns for date (year) and per-meter usage.
-
-```{r}
-set.seed(8)
-df <- data.frame(date = 2009:2018, use_pm = round(rbeta(10, 5, 2) * 20, 0))
-
-df <- ForecastUsage(df, t_0 = 2018, t_final = 2024)
-
-print(df)
-
-```
