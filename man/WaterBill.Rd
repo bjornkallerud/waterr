@@ -6,8 +6,8 @@
 \usage{
 WaterBill(df, uniform_rates = TRUE, nt_c, wdths_c = NULL,
   fxd_c = NULL, vol_c = NULL, proposed_rates = TRUE,
-  elasticity = 0, nt_p = NULL, wdths_p = NULL, fxd_p = NULL,
-  vol_p = NULL)
+  elasticity_par = 0, elasticity_response = "average", nt_p = NULL,
+  wdths_p = NULL, fxd_p = NULL, vol_p = NULL)
 }
 \arguments{
 \item{df}{\code{dataframe} that contains customer usage - var must be titled \code{usage}. If rates are not uniform across
@@ -26,7 +26,7 @@ inputs for the rate structure are required in the function call}
 
 \item{proposed_rates}{\code{logical} if \code{TRUE} two rate structures are included in the calculation}
 
-\item{elasticity}{the elasticity parameter, default is set to zero which excludes elasticity from the analysis}
+\item{elasticity_par}{the elasticity parameter, default is set to zero which excludes elasticity from the analysis}
 
 \item{nt_p}{number of tiers in the proposed rate structure}
 

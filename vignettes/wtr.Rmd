@@ -28,7 +28,7 @@ In this vignette we document the use cases for the various functions within the 
 This function allocates water consumption across tiers. `nt` is the number of tiers in the rate structure, `usage` is a vector of usage values and `width` inputs are the widths of the various tiers. You only need to input `nt-1` widths as the width of the highest tier is infinite. In the case of water budget rates, `width` parameters can be vectors corresponding to indvidual tier widths.
 
 ```{r}
-TierConsumption(nt = 2, usage = c(1:20), t1width = 10)
+# TierConsumption(nt = 2, usage = c(1:20), t1width = 10)
 ```
 
 ### WaterBill
@@ -44,14 +44,14 @@ When calculating water bills for customers of a water agency, the rates either v
 If you are interested only in calculating bills under one rate structure you can set `proposed_rates = F` when calling the function. Under this option, bills will be calculated only for the current rate structure.
 
 ```{r}
-set.seed(8)
-cust <- data.frame(usage = rbeta(500, 5, 2) * rnorm(500, mean = 10, sd = 5)) %>%
-  mutate(usage = ifelse(usage < 0, 0, usage))
-
-df <- WaterBill(cust, uniform_rates = T, nt_c = 3,wdths_c = c(5, 5), fxd_c = 20, vol_c = c(4, 5, 6), 
-                proposed_rates = F) 
-
-str(df)
+# set.seed(8)
+# cust <- data.frame(usage = rbeta(500, 5, 2) * rnorm(500, mean = 10, sd = 5)) %>%
+#   mutate(usage = ifelse(usage < 0, 0, usage))
+# 
+# df <- WaterBill(cust, uniform_rates = T, nt_c = 3,wdths_c = c(5, 5), fxd_c = 20, vol_c = c(4, 5, 6), 
+#                 proposed_rates = F) 
+# 
+# str(df)
 
 ```
 
@@ -68,26 +68,26 @@ Setting `proposed_rates = T` will include bill calculations for two bills as wel
 
 ```{r}
 # Current Rate Structure
-ntiers_current <- 3
-tierwidths_current <- c(5, 6)
-fixedcharge_current <- 25
-volumetriccharges_current <- c(4, 5, 6)
-
-# Proposed Rate Structure
-ntiers_proposed <- 4
-tierwidths_proposed <- c(2, 3, 4)
-fixedcharge_proposed <- 30
-volumetriccharges_proposed <- c(2, 3, 6, 7)
-
-# Elasticity parameter
-el <- -0.1
-
-df <- WaterBill(df = cust, uniform_rates = TRUE, nt_c = ntiers_current, wdths_c = tierwidths_current, 
-                fxd_c = fixedcharge_current, vol_c = volumetriccharges_current,
-                proposed_rates = TRUE, nt_p = ntiers_proposed, wdths_p = tierwidths_proposed, 
-                fxd_p = fixedcharge_proposed,  vol_p = volumetriccharges_proposed) 
-
-str(df)
+# ntiers_current <- 3
+# tierwidths_current <- c(5, 6)
+# fixedcharge_current <- 25
+# volumetriccharges_current <- c(4, 5, 6)
+# 
+# # Proposed Rate Structure
+# ntiers_proposed <- 4
+# tierwidths_proposed <- c(2, 3, 4)
+# fixedcharge_proposed <- 30
+# volumetriccharges_proposed <- c(2, 3, 6, 7)
+# 
+# # Elasticity parameter
+# el <- -0.1
+# 
+# df <- WaterBill(df = cust, uniform_rates = TRUE, nt_c = ntiers_current, wdths_c = tierwidths_current, 
+#                 fxd_c = fixedcharge_current, vol_c = volumetriccharges_current,
+#                 proposed_rates = TRUE, nt_p = ntiers_proposed, wdths_p = tierwidths_proposed, 
+#                 fxd_p = fixedcharge_proposed,  vol_p = volumetriccharges_proposed) 
+# 
+# str(df)
 ```
 
 
@@ -96,14 +96,14 @@ str(df)
 This function automates the forecasting of meters by a group according to a linear time trend. The inputted dataframe must have three column - `date` which is a numeric column for year, `meter_size` which is the size of the meter, and `meters` the number of meters. 
 
 ```{r}
-set.seed(8)
-df <- data.frame(date = 2009:2018,
-                 meter_size = c(rep("0.75", 10), rep("1", 10)),
-                 meters = c(round(rbeta(10, 5, 2) * 1000, 0), round(rbeta(10, 8, 1) * 250, 0)))
-
-df <- ForecastMeters(df, t_0 = 2018, t_final = 2024)
-
-print(df)
+# set.seed(8)
+# df <- data.frame(date = 2009:2018,
+#                  meter_size = c(rep("0.75", 10), rep("1", 10)),
+#                  meters = c(round(rbeta(10, 5, 2) * 1000, 0), round(rbeta(10, 8, 1) * 250, 0)))
+# 
+# df <- ForecastMeters(df, t_0 = 2018, t_final = 2024)
+# 
+# print(df)
 
 ```
 
@@ -112,11 +112,11 @@ print(df)
 This function forecasts per-meter usage based solely on a linear time trend. The inputted dataframe must have only two inputs: columns for date (year) and per-meter usage.
 
 ```{r}
-set.seed(8)
-df <- data.frame(date = 2009:2018, use_pm = round(rbeta(10, 5, 2) * 20, 0))
-
-df <- ForecastUsage(df, t_0 = 2018, t_final = 2024)
-
-print(df)
+# set.seed(8)
+# df <- data.frame(date = 2009:2018, use_pm = round(rbeta(10, 5, 2) * 20, 0))
+# 
+# df <- ForecastUsage(df, t_0 = 2018, t_final = 2024)
+# 
+# print(df)
 
 ```

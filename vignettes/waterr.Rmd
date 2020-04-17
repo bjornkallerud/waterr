@@ -28,7 +28,7 @@ In this vignette we document the use cases for the various functions within the 
 `convert_units` converts the units of water consumption levels. The first argument is the numeric value or vector that you want to convert. The second and third arguments are the units to convert from and to, respectively.
 
 ```{r}
-convert_units(100, from = "gallons", to = "hcf")
+# convert_units(100, from = "gallons", to = "hcf")
 ```
 
 ### allocate_consumption
@@ -56,14 +56,14 @@ When calculating water bills for customers of a water agency, the rates either v
 If you are interested only in calculating bills under one rate structure you can set `proposed_rates = F` when calling the function. Under this option, bills will be calculated only for the current rate structure.
 
 ```{r}
-set.seed(8)
-cust <- data.frame(usage = rbeta(500, 5, 2) * rnorm(500, mean = 10, sd = 5)) %>%
-  mutate(usage = ifelse(usage < 0, 0, usage))
-
-df <- WaterBill(cust, uniform_rates = T, nt_c = 3,wdths_c = c(5, 5), fxd_c = 20, vol_c = c(4, 5, 6), 
-                proposed_rates = F) 
-
-str(df)
+# set.seed(8)
+# cust <- data.frame(usage = rbeta(500, 5, 2) * rnorm(500, mean = 10, sd = 5)) %>%
+#   mutate(usage = ifelse(usage < 0, 0, usage))
+# 
+# df <- WaterBill(cust, uniform_rates = T, nt_c = 3,wdths_c = c(5, 5), fxd_c = 20, vol_c = c(4, 5, 6), 
+#                 proposed_rates = F) 
+# 
+# str(df)
 
 ```
 
@@ -79,26 +79,26 @@ Setting `proposed_rates = T` will include bill calculations for two bills as wel
 6. The difference between bills between Step 1 and Step 5 is calculated.
 
 ```{r}
-# Current Rate Structure
-ntiers_current <- 3
-tierwidths_current <- c(5, 6)
-fixedcharge_current <- 25
-volumetriccharges_current <- c(4, 5, 6)
-
-# Proposed Rate Structure
-ntiers_proposed <- 4
-tierwidths_proposed <- c(2, 3, 4)
-fixedcharge_proposed <- 30
-volumetriccharges_proposed <- c(2, 3, 6, 7)
-
-# Elasticity parameter
-el <- -0.1
-
-df <- WaterBill(df = cust, uniform_rates = TRUE, nt_c = ntiers_current, wdths_c = tierwidths_current, 
-                fxd_c = fixedcharge_current, vol_c = volumetriccharges_current,
-                proposed_rates = TRUE, nt_p = ntiers_proposed, wdths_p = tierwidths_proposed, 
-                fxd_p = fixedcharge_proposed,  vol_p = volumetriccharges_proposed) 
-
-str(df)
+# # Current Rate Structure
+# ntiers_current <- 3
+# tierwidths_current <- c(5, 6)
+# fixedcharge_current <- 25
+# volumetriccharges_current <- c(4, 5, 6)
+# 
+# # Proposed Rate Structure
+# ntiers_proposed <- 4
+# tierwidths_proposed <- c(2, 3, 4)
+# fixedcharge_proposed <- 30
+# volumetriccharges_proposed <- c(2, 3, 6, 7)
+# 
+# # Elasticity parameter
+# el <- -0.1
+# 
+# df <- WaterBill(df = cust, uniform_rates = TRUE, nt_c = ntiers_current, wdths_c = tierwidths_current, 
+#                 fxd_c = fixedcharge_current, vol_c = volumetriccharges_current,
+#                 proposed_rates = TRUE, nt_p = ntiers_proposed, wdths_p = tierwidths_proposed, 
+#                 fxd_p = fixedcharge_proposed,  vol_p = volumetriccharges_proposed) 
+# 
+# str(df)
 ```
 
