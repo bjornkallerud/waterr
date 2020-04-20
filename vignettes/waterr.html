@@ -309,75 +309,125 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <p>In this vignette we document the use cases for the various functions within the <code>waterr</code> package.</p>
 <div id="convert_units" class="section level3">
 <h3>convert_units</h3>
-<p><code>convert_units</code> converts the units of water consumption levels. The first argument is the numeric value or vector that you want to convert. The second and third arguments are the units to convert from and to, respectively.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># convert_units(100, from = &quot;gallons&quot;, to = &quot;hcf&quot;)</span></span></code></pre></div>
+<p><code>convert_units</code> converts the units of water consumption levels. The first argument is the numeric value or vector that you want to convert. The second and third arguments are the units to convert from and to, respectively. Unit options are “gallons”, “hcf”, or “af” (acre-feet).</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">convert_units</span>(<span class="dv">100</span>, <span class="dt">from =</span> <span class="st">&quot;gallons&quot;</span>, <span class="dt">to =</span> <span class="st">&quot;hcf&quot;</span>)</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="co">#&gt; [1] 0.1336898</span></span></code></pre></div>
 </div>
 <div id="allocate_consumption" class="section level3">
 <h3>allocate_consumption</h3>
-<p><code>allocate_consumption</code> distributes water usage across tiers in a tiered rate structure.</p>
+<p><code>allocate_consumption</code> distributes water usage across tiers in a tiered rate structure. <code>df</code> should be a dataframe that includes a column for usage in addition to tier widths. The usage column needs to be titled either <code>use</code> or <code>usage</code>.</p>
+<p>Most often, this function will be used in the context of calculating water bills with <code>calculate_bill</code>. Because we are typically interested in comparing water bills, we usually need to differentiate between the current and proposed rate structures. This is why we have included the <code>suffix</code> argument to the function, which refers to the suffix of tier width columns.</p>
+<p>In the example below we have current and proposed widths, as referenced by the suffix.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">glimpse</span>(df)</span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="co">#&gt; Observations: 10</span></span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="co">#&gt; Variables: 7</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="co">#&gt; $ account_number    &lt;int&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="co">#&gt; $ meter_size        &lt;fct&gt; 0.75&quot;, 1&quot;, 0.75&quot;, 1&quot;, 0.75&quot;, 1&quot;, 0.75&quot;, 1&quot;, ...</span></span>
+<span id="cb2-6"><a href="#cb2-6"></a><span class="co">#&gt; $ use               &lt;dbl&gt; 19.3, 14.2, 26.0, 23.0, 16.4, 24.4, 15.8, 28...</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a><span class="co">#&gt; $ class             &lt;fct&gt; sfr, sfr, sfr, sfr, sfr, sfr, sfr, sfr, sfr,...</span></span>
+<span id="cb2-8"><a href="#cb2-8"></a><span class="co">#&gt; $ t1_width_current  &lt;dbl&gt; 10, 11, 10, 11, 10, 11, 10, 11, 10, 11</span></span>
+<span id="cb2-9"><a href="#cb2-9"></a><span class="co">#&gt; $ t1_width_proposed &lt;dbl&gt; 10, 11, 10, 11, 10, 11, 10, 11, 10, 11</span></span>
+<span id="cb2-10"><a href="#cb2-10"></a><span class="co">#&gt; $ t2_width_proposed &lt;dbl&gt; 5, 6, 5, 6, 5, 6, 5, 6, 5, 6</span></span></code></pre></div>
+<p>Let’s use <code>allocate_consumption</code> for the proposed rates. We see that this function creates the appropriate number of new columns for the dataframe and allocates the customer’s usage between them. The suffix of the rate structure is retained in the new usage columns.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">glimpse</span>(</span>
+<span id="cb3-2"><a href="#cb3-2"></a>  df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">allocate_consumption</span>(<span class="dt">suffix =</span> <span class="st">&quot;_proposed&quot;</span>)</span>
+<span id="cb3-3"><a href="#cb3-3"></a>)</span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="co">#&gt; Observations: 10</span></span>
+<span id="cb3-5"><a href="#cb3-5"></a><span class="co">#&gt; Variables: 10</span></span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="co">#&gt; $ account_number    &lt;int&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10</span></span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="co">#&gt; $ meter_size        &lt;fct&gt; 0.75&quot;, 1&quot;, 0.75&quot;, 1&quot;, 0.75&quot;, 1&quot;, 0.75&quot;, 1&quot;, ...</span></span>
+<span id="cb3-8"><a href="#cb3-8"></a><span class="co">#&gt; $ use               &lt;dbl&gt; 19.3, 14.2, 26.0, 23.0, 16.4, 24.4, 15.8, 28...</span></span>
+<span id="cb3-9"><a href="#cb3-9"></a><span class="co">#&gt; $ class             &lt;fct&gt; sfr, sfr, sfr, sfr, sfr, sfr, sfr, sfr, sfr,...</span></span>
+<span id="cb3-10"><a href="#cb3-10"></a><span class="co">#&gt; $ t1_width_current  &lt;dbl&gt; 10, 11, 10, 11, 10, 11, 10, 11, 10, 11</span></span>
+<span id="cb3-11"><a href="#cb3-11"></a><span class="co">#&gt; $ t1_width_proposed &lt;dbl&gt; 10, 11, 10, 11, 10, 11, 10, 11, 10, 11</span></span>
+<span id="cb3-12"><a href="#cb3-12"></a><span class="co">#&gt; $ t2_width_proposed &lt;dbl&gt; 5, 6, 5, 6, 5, 6, 5, 6, 5, 6</span></span>
+<span id="cb3-13"><a href="#cb3-13"></a><span class="co">#&gt; $ t1_use_proposed   &lt;dbl&gt; 10, 11, 10, 11, 10, 11, 10, 11, 10, 11</span></span>
+<span id="cb3-14"><a href="#cb3-14"></a><span class="co">#&gt; $ t2_use_proposed   &lt;dbl&gt; 5.0, 3.2, 5.0, 6.0, 5.0, 6.0, 5.0, 6.0, 5.0,...</span></span>
+<span id="cb3-15"><a href="#cb3-15"></a><span class="co">#&gt; $ t3_use_proposed   &lt;dbl&gt; 4.3, 0.0, 11.0, 6.0, 1.4, 7.4, 0.8, 11.6, 10...</span></span></code></pre></div>
+<p>When accounting for price elasticity effects during the bill calculation process, we define a new column <code>use_prime</code>. If you want to use this column and ignore the original usage column, you can set <code>use.prime = TRUE</code>.</p>
+</div>
+<div id="calculate_bill" class="section level3">
+<h3>calculate_bill</h3>
+<p><code>calculate_bill</code> calculates water bills for a set of <code>_current</code> rates. The inputs are (1) a <code>dataframe</code> for usage and (2) a <code>dataframe</code> with rate structure information. If rate structure information is included in <code>df_use</code> then set the second argument in the function equal to <code>NULL</code>. In the example below we calculate the bill for the current rate structure in our example. We see that the function creates new columns for tiered usage, tiered charges, and the total bill.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">glimpse</span>(</span>
+<span id="cb4-2"><a href="#cb4-2"></a>  <span class="kw">calculate_bill</span>(df_use, df_rates)</span>
+<span id="cb4-3"><a href="#cb4-3"></a>)</span>
+<span id="cb4-4"><a href="#cb4-4"></a><span class="co">#&gt; Observations: 10</span></span>
+<span id="cb4-5"><a href="#cb4-5"></a><span class="co">#&gt; Variables: 19</span></span>
+<span id="cb4-6"><a href="#cb4-6"></a><span class="co">#&gt; $ account_number     &lt;int&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10</span></span>
+<span id="cb4-7"><a href="#cb4-7"></a><span class="co">#&gt; $ meter_size         &lt;fct&gt; 0.75&quot;, 1&quot;, 0.75&quot;, 1&quot;, 0.75&quot;, 1&quot;, 0.75&quot;, 1&quot;,...</span></span>
+<span id="cb4-8"><a href="#cb4-8"></a><span class="co">#&gt; $ use                &lt;dbl&gt; 19.3, 14.2, 26.0, 23.0, 16.4, 24.4, 15.8, 2...</span></span>
+<span id="cb4-9"><a href="#cb4-9"></a><span class="co">#&gt; $ class              &lt;fct&gt; sfr, sfr, sfr, sfr, sfr, sfr, sfr, sfr, sfr...</span></span>
+<span id="cb4-10"><a href="#cb4-10"></a><span class="co">#&gt; $ t1_width_current   &lt;dbl&gt; 10, 11, 10, 11, 10, 11, 10, 11, 10, 11</span></span>
+<span id="cb4-11"><a href="#cb4-11"></a><span class="co">#&gt; $ t1_width_proposed  &lt;dbl&gt; 10, 11, 10, 11, 10, 11, 10, 11, 10, 11</span></span>
+<span id="cb4-12"><a href="#cb4-12"></a><span class="co">#&gt; $ t2_width_proposed  &lt;dbl&gt; 5, 6, 5, 6, 5, 6, 5, 6, 5, 6</span></span>
+<span id="cb4-13"><a href="#cb4-13"></a><span class="co">#&gt; $ fixed_current      &lt;dbl&gt; 20, 30, 20, 30, 20, 30, 20, 30, 20, 30</span></span>
+<span id="cb4-14"><a href="#cb4-14"></a><span class="co">#&gt; $ fixed_proposed     &lt;dbl&gt; 21, 32, 21, 32, 21, 32, 21, 32, 21, 32</span></span>
+<span id="cb4-15"><a href="#cb4-15"></a><span class="co">#&gt; $ t1_rate_current    &lt;dbl&gt; 2, 2, 2, 2, 2, 2, 2, 2, 2, 2</span></span>
+<span id="cb4-16"><a href="#cb4-16"></a><span class="co">#&gt; $ t2_rate_current    &lt;dbl&gt; 3, 3, 3, 3, 3, 3, 3, 3, 3, 3</span></span>
+<span id="cb4-17"><a href="#cb4-17"></a><span class="co">#&gt; $ t1_rate_proposed   &lt;dbl&gt; 1.9, 1.9, 1.9, 1.9, 1.9, 1.9, 1.9, 1.9, 1.9...</span></span>
+<span id="cb4-18"><a href="#cb4-18"></a><span class="co">#&gt; $ t2_rate_proposed   &lt;dbl&gt; 3, 3, 3, 3, 3, 3, 3, 3, 3, 3</span></span>
+<span id="cb4-19"><a href="#cb4-19"></a><span class="co">#&gt; $ t3_rate_proposed   &lt;dbl&gt; 5, 5, 5, 5, 5, 5, 5, 5, 5, 5</span></span>
+<span id="cb4-20"><a href="#cb4-20"></a><span class="co">#&gt; $ t1_use_current     &lt;dbl&gt; 10, 11, 10, 11, 10, 11, 10, 11, 10, 11</span></span>
+<span id="cb4-21"><a href="#cb4-21"></a><span class="co">#&gt; $ t2_use_current     &lt;dbl&gt; 9.3, 3.2, 16.0, 12.0, 6.4, 13.4, 5.8, 17.6,...</span></span>
+<span id="cb4-22"><a href="#cb4-22"></a><span class="co">#&gt; $ t1_charges_current &lt;dbl&gt; 20, 22, 20, 22, 20, 22, 20, 22, 20, 22</span></span>
+<span id="cb4-23"><a href="#cb4-23"></a><span class="co">#&gt; $ t2_charges_current &lt;dbl&gt; 27.9, 9.6, 48.0, 36.0, 19.2, 40.2, 17.4, 52...</span></span>
+<span id="cb4-24"><a href="#cb4-24"></a><span class="co">#&gt; $ bill_current       &lt;dbl&gt; 67.9, 61.6, 88.0, 88.0, 59.2, 92.2, 57.4, 1...</span></span></code></pre></div>
+</div>
+<div id="compare_bills" class="section level3">
+<h3>compare_bills</h3>
+<p><code>compare_bills</code> calculates water bills for a set of <code>_current</code> rates and for a set of <code>proposed</code> rates. The inputs are (1) a <code>dataframe</code> for usage and (2) a <code>dataframe</code> with rate structure information. If rate structure information is included in <code>df_use</code> then set the second argument in the function equal to <code>NULL</code>.</p>
+<p>In the example we calculate the bill for the current rate structure in our example. We see that the function creates new columns for tiered usage, tiered charges, and the total bill for both current and proposed rates. Then, new columns for average price under each set of rates is calculated and usage incorporating price elasticity according to the parameter defined with <code>eleasticity_par</code> (<code>use_prime</code>). Next, a series of columns for tiered usage and charges for <code>use_prime</code> are calculated with the proposed rate structure. <code>perc_change_bill</code> captures the percentage change in a customer’s bill from the current to proposed rates.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">glimpse</span>(</span>
+<span id="cb5-2"><a href="#cb5-2"></a>  <span class="kw">compare_bills</span>(df_use, df_rates)</span>
+<span id="cb5-3"><a href="#cb5-3"></a>)</span>
+<span id="cb5-4"><a href="#cb5-4"></a><span class="co">#&gt; Observations: 10</span></span>
+<span id="cb5-5"><a href="#cb5-5"></a><span class="co">#&gt; Variables: 37</span></span>
+<span id="cb5-6"><a href="#cb5-6"></a><span class="co">#&gt; $ account_number      &lt;int&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10</span></span>
+<span id="cb5-7"><a href="#cb5-7"></a><span class="co">#&gt; $ meter_size          &lt;fct&gt; 0.75&quot;, 1&quot;, 0.75&quot;, 1&quot;, 0.75&quot;, 1&quot;, 0.75&quot;, 1&quot;...</span></span>
+<span id="cb5-8"><a href="#cb5-8"></a><span class="co">#&gt; $ use                 &lt;dbl&gt; 19.3, 14.2, 26.0, 23.0, 16.4, 24.4, 15.8, ...</span></span>
+<span id="cb5-9"><a href="#cb5-9"></a><span class="co">#&gt; $ class               &lt;fct&gt; sfr, sfr, sfr, sfr, sfr, sfr, sfr, sfr, sf...</span></span>
+<span id="cb5-10"><a href="#cb5-10"></a><span class="co">#&gt; $ t1_width_current    &lt;dbl&gt; 10, 11, 10, 11, 10, 11, 10, 11, 10, 11</span></span>
+<span id="cb5-11"><a href="#cb5-11"></a><span class="co">#&gt; $ t1_width_proposed   &lt;dbl&gt; 10, 11, 10, 11, 10, 11, 10, 11, 10, 11</span></span>
+<span id="cb5-12"><a href="#cb5-12"></a><span class="co">#&gt; $ t2_width_proposed   &lt;dbl&gt; 5, 6, 5, 6, 5, 6, 5, 6, 5, 6</span></span>
+<span id="cb5-13"><a href="#cb5-13"></a><span class="co">#&gt; $ fixed_current       &lt;dbl&gt; 20, 30, 20, 30, 20, 30, 20, 30, 20, 30</span></span>
+<span id="cb5-14"><a href="#cb5-14"></a><span class="co">#&gt; $ fixed_proposed      &lt;dbl&gt; 21, 32, 21, 32, 21, 32, 21, 32, 21, 32</span></span>
+<span id="cb5-15"><a href="#cb5-15"></a><span class="co">#&gt; $ t1_rate_current     &lt;dbl&gt; 2, 2, 2, 2, 2, 2, 2, 2, 2, 2</span></span>
+<span id="cb5-16"><a href="#cb5-16"></a><span class="co">#&gt; $ t2_rate_current     &lt;dbl&gt; 3, 3, 3, 3, 3, 3, 3, 3, 3, 3</span></span>
+<span id="cb5-17"><a href="#cb5-17"></a><span class="co">#&gt; $ t1_rate_proposed    &lt;dbl&gt; 1.9, 1.9, 1.9, 1.9, 1.9, 1.9, 1.9, 1.9, 1....</span></span>
+<span id="cb5-18"><a href="#cb5-18"></a><span class="co">#&gt; $ t2_rate_proposed    &lt;dbl&gt; 3, 3, 3, 3, 3, 3, 3, 3, 3, 3</span></span>
+<span id="cb5-19"><a href="#cb5-19"></a><span class="co">#&gt; $ t3_rate_proposed    &lt;dbl&gt; 5, 5, 5, 5, 5, 5, 5, 5, 5, 5</span></span>
+<span id="cb5-20"><a href="#cb5-20"></a><span class="co">#&gt; $ t1_use_current      &lt;dbl&gt; 10, 11, 10, 11, 10, 11, 10, 11, 10, 11</span></span>
+<span id="cb5-21"><a href="#cb5-21"></a><span class="co">#&gt; $ t2_use_current      &lt;dbl&gt; 9.3, 3.2, 16.0, 12.0, 6.4, 13.4, 5.8, 17.6...</span></span>
+<span id="cb5-22"><a href="#cb5-22"></a><span class="co">#&gt; $ t1_use_proposed     &lt;dbl&gt; 10, 11, 10, 11, 10, 11, 10, 11, 10, 11</span></span>
+<span id="cb5-23"><a href="#cb5-23"></a><span class="co">#&gt; $ t2_use_proposed     &lt;dbl&gt; 5.0, 3.2, 5.0, 6.0, 5.0, 6.0, 5.0, 6.0, 5....</span></span>
+<span id="cb5-24"><a href="#cb5-24"></a><span class="co">#&gt; $ t3_use_proposed     &lt;dbl&gt; 4.3, 0.0, 11.0, 6.0, 1.4, 7.4, 0.8, 11.6, ...</span></span>
+<span id="cb5-25"><a href="#cb5-25"></a><span class="co">#&gt; $ t1_charges_current  &lt;dbl&gt; 20, 22, 20, 22, 20, 22, 20, 22, 20, 22</span></span>
+<span id="cb5-26"><a href="#cb5-26"></a><span class="co">#&gt; $ t2_charges_current  &lt;dbl&gt; 27.9, 9.6, 48.0, 36.0, 19.2, 40.2, 17.4, 5...</span></span>
+<span id="cb5-27"><a href="#cb5-27"></a><span class="co">#&gt; $ t1_charges_proposed &lt;dbl&gt; 19.0, 20.9, 19.0, 20.9, 19.0, 20.9, 19.0, ...</span></span>
+<span id="cb5-28"><a href="#cb5-28"></a><span class="co">#&gt; $ t2_charges_proposed &lt;dbl&gt; 15.0, 9.6, 15.0, 18.0, 15.0, 18.0, 15.0, 1...</span></span>
+<span id="cb5-29"><a href="#cb5-29"></a><span class="co">#&gt; $ t3_charges_proposed &lt;dbl&gt; 21.5, 0.0, 55.0, 30.0, 7.0, 37.0, 4.0, 58....</span></span>
+<span id="cb5-30"><a href="#cb5-30"></a><span class="co">#&gt; $ bill_current        &lt;dbl&gt; 67.9, 61.6, 88.0, 88.0, 59.2, 92.2, 57.4, ...</span></span>
+<span id="cb5-31"><a href="#cb5-31"></a><span class="co">#&gt; $ bill_proposed       &lt;dbl&gt; 76.5, 62.5, 110.0, 100.9, 62.0, 107.9, 59....</span></span>
+<span id="cb5-32"><a href="#cb5-32"></a><span class="co">#&gt; $ avg_price_current   &lt;dbl&gt; 3.518135, 4.338028, 3.384615, 3.826087, 3....</span></span>
+<span id="cb5-33"><a href="#cb5-33"></a><span class="co">#&gt; $ avg_price_proposed  &lt;dbl&gt; 3.963731, 4.401408, 4.230769, 4.386957, 3....</span></span>
+<span id="cb5-34"><a href="#cb5-34"></a><span class="co">#&gt; $ use_prime           &lt;dbl&gt; 19.3, 14.2, 26.0, 23.0, 16.4, 24.4, 15.8, ...</span></span>
+<span id="cb5-35"><a href="#cb5-35"></a><span class="co">#&gt; $ t1_use_prime        &lt;dbl&gt; 10, 11, 10, 11, 10, 11, 10, 11, 10, 11</span></span>
+<span id="cb5-36"><a href="#cb5-36"></a><span class="co">#&gt; $ t2_use_prime        &lt;dbl&gt; 5.0, 3.2, 5.0, 6.0, 5.0, 6.0, 5.0, 6.0, 5....</span></span>
+<span id="cb5-37"><a href="#cb5-37"></a><span class="co">#&gt; $ t3_use_prime        &lt;dbl&gt; 4.3, 0.0, 11.0, 6.0, 1.4, 7.4, 0.8, 11.6, ...</span></span>
+<span id="cb5-38"><a href="#cb5-38"></a><span class="co">#&gt; $ t1charges_prime     &lt;dbl&gt; 19.0, 20.9, 19.0, 20.9, 19.0, 20.9, 19.0, ...</span></span>
+<span id="cb5-39"><a href="#cb5-39"></a><span class="co">#&gt; $ t2charges_prime     &lt;dbl&gt; 15.0, 9.6, 15.0, 18.0, 15.0, 18.0, 15.0, 1...</span></span>
+<span id="cb5-40"><a href="#cb5-40"></a><span class="co">#&gt; $ t3charges_prime     &lt;dbl&gt; 21.5, 0.0, 55.0, 30.0, 7.0, 37.0, 4.0, 58....</span></span>
+<span id="cb5-41"><a href="#cb5-41"></a><span class="co">#&gt; $ bill_prime          &lt;dbl&gt; 76.5, 62.5, 110.0, 100.9, 62.0, 107.9, 59....</span></span>
+<span id="cb5-42"><a href="#cb5-42"></a><span class="co">#&gt; $ perc_change_bill    &lt;dbl&gt; 0.12665685, 0.01461039, 0.25000000, 0.1465...</span></span></code></pre></div>
 </div>
 <div id="tierconsumption" class="section level3">
 <h3>TierConsumption</h3>
-<p>This function allocates water consumption across tiers. <code>nt</code> is the number of tiers in the rate structure, <code>usage</code> is a vector of usage values and <code>width</code> inputs are the widths of the various tiers. You only need to input <code>nt-1</code> widths as the width of the highest tier is infinite. In the case of water budget rates, <code>width</code> parameters can be vectors corresponding to indvidual tier widths.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">TierConsumption</span>(<span class="dt">nt =</span> <span class="dv">2</span>, <span class="dt">usage =</span> <span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">20</span>), <span class="dt">t1width =</span> <span class="dv">10</span>)</span>
-<span id="cb2-2"><a href="#cb2-2"></a><span class="co">#&gt; $t1use</span></span>
-<span id="cb2-3"><a href="#cb2-3"></a><span class="co">#&gt;  [1]  1  2  3  4  5  6  7  8  9 10 10 10 10 10 10 10 10 10 10 10</span></span>
-<span id="cb2-4"><a href="#cb2-4"></a><span class="co">#&gt; </span></span>
-<span id="cb2-5"><a href="#cb2-5"></a><span class="co">#&gt; $t2use</span></span>
-<span id="cb2-6"><a href="#cb2-6"></a><span class="co">#&gt;  [1]  0  0  0  0  0  0  0  0  0  0  1  2  3  4  5  6  7  8  9 10</span></span></code></pre></div>
+<p><code>TierConsumption</code> is depracated - see <code>allocate_consumption</code>.</p>
 </div>
 <div id="waterbill" class="section level3">
 <h3>WaterBill</h3>
-<p><code>WaterBill</code> calculates water bills for customer usage. In this vignette we demonstrate the function on a sample data set of simulted water usage. This function has two main uses, (a) calculating water bills under the current rate structure and (b) calculating water bills under the current and proposed rate structures. The dataframe used on this function, <code>df</code> needs to have a column titled <code>usage</code> for customer usage.</p>
-<div id="uniform-rate-structures" class="section level5">
-<h5>Uniform Rate Structures</h5>
-<p>When calculating water bills for customers of a water agency, the rates either vary by customer type or they are constant. When calling the function, setting <code>uniform_rates = T</code> will apply a standard rate structure across all customers. In this case, be sure to include the rate structure in the call of the function. <code>fxd_i</code> refers to fixed rates for rate structures <code>i = {c, p}</code> and <code>vol_i</code> is a vector of volumetric rates for rate structures <code>i = {c, p}</code>.</p>
-</div>
-<div id="current-rate-structure-only" class="section level5">
-<h5>Current Rate Structure Only</h5>
-<p>If you are interested only in calculating bills under one rate structure you can set <code>proposed_rates = F</code> when calling the function. Under this option, bills will be calculated only for the current rate structure.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># set.seed(8)</span></span>
-<span id="cb3-2"><a href="#cb3-2"></a><span class="co"># cust &lt;- data.frame(usage = rbeta(500, 5, 2) * rnorm(500, mean = 10, sd = 5)) %&gt;%</span></span>
-<span id="cb3-3"><a href="#cb3-3"></a><span class="co">#   mutate(usage = ifelse(usage &lt; 0, 0, usage))</span></span>
-<span id="cb3-4"><a href="#cb3-4"></a><span class="co"># </span></span>
-<span id="cb3-5"><a href="#cb3-5"></a><span class="co"># df &lt;- WaterBill(cust, uniform_rates = T, nt_c = 3,wdths_c = c(5, 5), fxd_c = 20, vol_c = c(4, 5, 6), </span></span>
-<span id="cb3-6"><a href="#cb3-6"></a><span class="co">#                 proposed_rates = F) </span></span>
-<span id="cb3-7"><a href="#cb3-7"></a><span class="co"># </span></span>
-<span id="cb3-8"><a href="#cb3-8"></a><span class="co"># str(df)</span></span></code></pre></div>
-</div>
-<div id="current-and-proposed-rates" class="section level5">
-<h5>Current and Proposed Rates</h5>
-<p>Setting <code>proposed_rates = T</code> will include bill calculations for two bills as well as some comparisons between the bills from the two rate structures. Under this option, the price elasticity of demand is incorporated into bill calculations in the following steps:</p>
-<ol style="list-style-type: decimal">
-<li>The total bill is calculated under the current rate structure as <code>bill_current</code></li>
-<li>The total bill is calculated under the proposed rate structure as <code>bill_proposed</code></li>
-<li>Average prices are calculated for both rate structures</li>
-<li>The new usage level <code>usage_prime</code> is estimated based on the change in average price</li>
-<li>The total bill under the proposed rate structure is calculated with the <code>usage_prime</code></li>
-<li>The difference between bills between Step 1 and Step 5 is calculated.</li>
-</ol>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="co"># # Current Rate Structure</span></span>
-<span id="cb4-2"><a href="#cb4-2"></a><span class="co"># ntiers_current &lt;- 3</span></span>
-<span id="cb4-3"><a href="#cb4-3"></a><span class="co"># tierwidths_current &lt;- c(5, 6)</span></span>
-<span id="cb4-4"><a href="#cb4-4"></a><span class="co"># fixedcharge_current &lt;- 25</span></span>
-<span id="cb4-5"><a href="#cb4-5"></a><span class="co"># volumetriccharges_current &lt;- c(4, 5, 6)</span></span>
-<span id="cb4-6"><a href="#cb4-6"></a><span class="co"># </span></span>
-<span id="cb4-7"><a href="#cb4-7"></a><span class="co"># # Proposed Rate Structure</span></span>
-<span id="cb4-8"><a href="#cb4-8"></a><span class="co"># ntiers_proposed &lt;- 4</span></span>
-<span id="cb4-9"><a href="#cb4-9"></a><span class="co"># tierwidths_proposed &lt;- c(2, 3, 4)</span></span>
-<span id="cb4-10"><a href="#cb4-10"></a><span class="co"># fixedcharge_proposed &lt;- 30</span></span>
-<span id="cb4-11"><a href="#cb4-11"></a><span class="co"># volumetriccharges_proposed &lt;- c(2, 3, 6, 7)</span></span>
-<span id="cb4-12"><a href="#cb4-12"></a><span class="co"># </span></span>
-<span id="cb4-13"><a href="#cb4-13"></a><span class="co"># # Elasticity parameter</span></span>
-<span id="cb4-14"><a href="#cb4-14"></a><span class="co"># el &lt;- -0.1</span></span>
-<span id="cb4-15"><a href="#cb4-15"></a><span class="co"># </span></span>
-<span id="cb4-16"><a href="#cb4-16"></a><span class="co"># df &lt;- WaterBill(df = cust, uniform_rates = TRUE, nt_c = ntiers_current, wdths_c = tierwidths_current, </span></span>
-<span id="cb4-17"><a href="#cb4-17"></a><span class="co">#                 fxd_c = fixedcharge_current, vol_c = volumetriccharges_current,</span></span>
-<span id="cb4-18"><a href="#cb4-18"></a><span class="co">#                 proposed_rates = TRUE, nt_p = ntiers_proposed, wdths_p = tierwidths_proposed, </span></span>
-<span id="cb4-19"><a href="#cb4-19"></a><span class="co">#                 fxd_p = fixedcharge_proposed,  vol_p = volumetriccharges_proposed) </span></span>
-<span id="cb4-20"><a href="#cb4-20"></a><span class="co"># </span></span>
-<span id="cb4-21"><a href="#cb4-21"></a><span class="co"># str(df)</span></span></code></pre></div>
-</div>
+<p><code>WaterBill</code> is depracated - see <code>calculate_bill</code>.</p>
 </div>
 
 

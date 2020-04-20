@@ -5,6 +5,7 @@
 #'
 #' @param df dataframe that contains customer usage and tier widths. usage column can be titled either "use" or "usage". width columns titles must take the form of "tX_width".
 #' @param suffix width column suffix. we often define widths in terms of current/proposed rates (ie tX_width_current), so defining the suffix enables use of this function for current and proposed widths.
+#' @param use.prime boolean - set to TRUE if you want to use `use_prime` usage column instead of standard use column.
 #'
 #' @return This function returns a \code{dataframe} of numeric columns for tiered usage
 #'

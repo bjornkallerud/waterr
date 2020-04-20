@@ -25,80 +25,76 @@ In this vignette we document the use cases for the various functions within the 
 
 ### convert_units
 
-`convert_units` converts the units of water consumption levels. The first argument is the numeric value or vector that you want to convert. The second and third arguments are the units to convert from and to, respectively.
+`convert_units` converts the units of water consumption levels. The first argument is the numeric value or vector that you want to convert. The second and third arguments are the units to convert from and to, respectively. Unit options are "gallons", "hcf", or "af" (acre-feet).
 
 ```{r}
-# convert_units(100, from = "gallons", to = "hcf")
+convert_units(100, from = "gallons", to = "hcf")
 ```
 
 ### allocate_consumption
 
-`allocate_consumption` distributes water usage across tiers in a tiered rate structure.
+`allocate_consumption` distributes water usage across tiers in a tiered rate structure. `df` should be a dataframe that includes a column for usage in addition to tier widths. The usage column needs to be titled either `use` or `usage`.
+
+Most often, this function will be used in the context of calculating water bills with `calculate_bill`. Because we are typically interested in comparing water bills, we usually need to differentiate between the current and proposed rate structures. This is why we have included the `suffix` argument to the function, which refers to the suffix of tier width columns.
+
+In the example below we have current and proposed widths, as referenced by the suffix.
+
+```{r include = F}
+set.seed(8)
+df_use <- data.frame(account_number = 1:10, meter_size = c("0.75\"", "1\""), use = round(runif(10, 10, 30), 1), class = "sfr")
+df_rates <- data.frame(meter_size = c("0.75\"", "1\""), class = "sfr",
+                       t1_width_current = c(10, 11),
+                       t1_width_proposed = c(10, 11), t2_width_proposed = c(5, 6),
+                       fixed_current = c(20, 30), fixed_proposed = c(21, 32),
+                       t1_rate_current = 2, t2_rate_current = 3, t1_rate_proposed = 1.9, t2_rate_proposed = 3, t3_rate_proposed = 5)
+
+df <- left_join(df_use, df_rates, by = c("meter_size", "class")) %>% 
+  select(-contains("rate")) %>% 
+  select(-contains("fixed"))
+```
+
+
+```{r}
+glimpse(df)
+```
+
+Let's use `allocate_consumption` for the proposed rates. We see that this function creates the appropriate number of new columns for the dataframe and allocates the customer's usage between them. The suffix of the rate structure is retained in the new usage columns.
+
+```{r}
+glimpse(
+  df %>% allocate_consumption(suffix = "_proposed")
+)
+```
+
+When accounting for price elasticity effects during the bill calculation process, we define a new column `use_prime`. If you want to use this column and ignore the original usage column, you can set `use.prime = TRUE`.
+
+### calculate_bill
+
+`calculate_bill` calculates water bills for a set of `_current` rates. The inputs are (1) a `dataframe` for usage and (2) a `dataframe` with rate structure information. If rate structure information is included in `df_use` then set the second argument in the function equal to `NULL`. In the example below we calculate the bill for the current rate structure in our example. We see that the function creates new columns for tiered usage, tiered charges, and the total bill.
+
+```{r}
+glimpse(
+  calculate_bill(df_use, df_rates)
+)
+```
+
+
+### compare_bills
+
+`compare_bills` calculates water bills for a set of `_current` rates and for a set of `proposed` rates. The inputs are (1) a `dataframe` for usage and (2) a `dataframe` with rate structure information. If rate structure information is included in `df_use` then set the second argument in the function equal to `NULL`. 
+
+In the example we calculate the bill for the current rate structure in our example. We see that the function creates new columns for tiered usage, tiered charges, and the total bill for both current and proposed rates. Then, new columns for average price under each set of rates is calculated and usage incorporating price elasticity according to the parameter defined with `eleasticity_par` (`use_prime`). Next, a series of columns for tiered usage and charges for `use_prime` are calculated with the proposed rate structure. `perc_change_bill` captures the percentage change in a customer's bill from the current to proposed rates.
+
+```{r}
+glimpse(
+  compare_bills(df_use, df_rates)
+)
+```
 
 ### TierConsumption
 
-This function allocates water consumption across tiers. `nt` is the number of tiers in the rate structure, `usage` is a vector of usage values and `width` inputs are the widths of the various tiers. You only need to input `nt-1` widths as the width of the highest tier is infinite. In the case of water budget rates, `width` parameters can be vectors corresponding to indvidual tier widths.
-
-```{r}
-TierConsumption(nt = 2, usage = c(1:20), t1width = 10)
-```
+`TierConsumption` is depracated - see `allocate_consumption`. 
 
 ### WaterBill
 
-`WaterBill` calculates water bills for customer usage. In this vignette we demonstrate the function on a sample data set of simulted water usage. This function has two main uses, (a) calculating water bills under the current rate structure and (b) calculating water bills under the current and proposed rate structures. The dataframe used on this function, `df` needs to have a column titled `usage` for customer usage.
-
-##### Uniform Rate Structures
-
-When calculating water bills for customers of a water agency, the rates either vary by customer type or they are constant. When calling the function, setting `uniform_rates = T` will apply a standard rate structure across all customers. In this case, be sure to include the rate structure in the call of the function. `fxd_i` refers to fixed rates for rate structures `i = {c, p}` and `vol_i` is a vector of volumetric rates for rate structures `i = {c, p}`.
-
-##### Current Rate Structure Only
-
-If you are interested only in calculating bills under one rate structure you can set `proposed_rates = F` when calling the function. Under this option, bills will be calculated only for the current rate structure.
-
-```{r}
-# set.seed(8)
-# cust <- data.frame(usage = rbeta(500, 5, 2) * rnorm(500, mean = 10, sd = 5)) %>%
-#   mutate(usage = ifelse(usage < 0, 0, usage))
-# 
-# df <- WaterBill(cust, uniform_rates = T, nt_c = 3,wdths_c = c(5, 5), fxd_c = 20, vol_c = c(4, 5, 6), 
-#                 proposed_rates = F) 
-# 
-# str(df)
-
-```
-
-##### Current and Proposed Rates
-
-Setting `proposed_rates = T` will include bill calculations for two bills as well as some comparisons between the bills from the two rate structures. Under this option, the price elasticity of demand is incorporated into bill calculations in the following steps:
-
-1. The total bill is calculated under the current rate structure as `bill_current`
-2. The total bill is calculated under the proposed rate structure as `bill_proposed`
-3. Average prices are calculated for both rate structures
-4. The new usage level `usage_prime` is estimated based on the change in average price
-5. The total bill under the proposed rate structure is calculated with the `usage_prime`
-6. The difference between bills between Step 1 and Step 5 is calculated.
-
-```{r}
-# # Current Rate Structure
-# ntiers_current <- 3
-# tierwidths_current <- c(5, 6)
-# fixedcharge_current <- 25
-# volumetriccharges_current <- c(4, 5, 6)
-# 
-# # Proposed Rate Structure
-# ntiers_proposed <- 4
-# tierwidths_proposed <- c(2, 3, 4)
-# fixedcharge_proposed <- 30
-# volumetriccharges_proposed <- c(2, 3, 6, 7)
-# 
-# # Elasticity parameter
-# el <- -0.1
-# 
-# df <- WaterBill(df = cust, uniform_rates = TRUE, nt_c = ntiers_current, wdths_c = tierwidths_current, 
-#                 fxd_c = fixedcharge_current, vol_c = volumetriccharges_current,
-#                 proposed_rates = TRUE, nt_p = ntiers_proposed, wdths_p = tierwidths_proposed, 
-#                 fxd_p = fixedcharge_proposed,  vol_p = volumetriccharges_proposed) 
-# 
-# str(df)
-```
-
+`WaterBill` is depracated - see `calculate_bill`.  

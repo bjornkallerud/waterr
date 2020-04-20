@@ -4,19 +4,18 @@
 \alias{calculate_bill}
 \title{Calculate Water Bill}
 \usage{
-calculate_bill(df_use, df_rates, rate_group = c("class", "meter_size"),
-  elasticity_par = 0, elasticity_response = "average")
+calculate_bill(df_use, df_rates, rate_group = c("class", "meter_size"))
 }
 \arguments{
 \item{df_use}{\code{dataframe} that contains customer usage - var must be titled \code{usage} or \code{use}.}
 
-\item{df_rates}{\code{dataframe} that contains current and proposed fixed and volumetric rates.}
+\item{df_rates}{\code{dataframe} that contains fixed and volumetric rates with suffix "_current". Set to \code{NULL} if widths and rates are already in \code{df_use}.}
 
-\item{elasticity_par}{the elasticity parameter, default is set to zero which excludes elasticity from the analysis.}
+\item{rate_group}{\code{vector} of strings that uniquely identify rates.}
 }
 \value{
-This function returns a \code{dataframe} that includes all final bills under the current and proposed rate
-structures as well as their respective tier components.
+This function returns a \code{dataframe} that includes the final bills under the current rate
+structure as well as the bill's respective tier components.
 }
 \description{
 Calculates customers' water bills based on fixed and volumetric rates. There is an option to include both current
