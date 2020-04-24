@@ -9,7 +9,7 @@
 #'
 #' @param df_use \code{dataframe} that contains customer usage - var must be titled \code{usage} or \code{use}.
 #' @param df_rates \code{dataframe} that contains fixed and volumetric rates with suffix "_current". Set to \code{NULL} if widths and rates are already in \code{df_use}.
-#' @param rate_group \code{vector} of strings that uniquely identify rates.
+#' @param rate_group \code{vector} of strings for the group that defines unique rate structure.
 #'
 #' @return This function returns a \code{dataframe} that includes the final bills under the current rate
 #' structure as well as the bill's respective tier components.
@@ -48,7 +48,7 @@ calculate_bill <- function(df_use, df_rates, rate_group = c("class", "meter_size
 
   # Calculate total bill
   df <- df %>%
-    mutate(bill_current  = fixed_current  + rowSums(df[charge_cols_current ]))
+    mutate(bill_current  = round(fixed_current  + rowSums(df[charge_cols_current ]), 2))
 
   return(df)
 
