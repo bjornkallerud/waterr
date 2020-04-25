@@ -34,7 +34,7 @@
 #                        t1_rate_current = 2, t2_rate_current = 3, t1_rate_proposed = 1.9, t2_rate_proposed = 3, t3_rate_proposed = 5)
 
 compare_bills <- function(df_use, df_rates, rate_group = c("class", "meter_size"), use.essential = 10,
-                          price.elasticity.essential = 0, price.elasticity.discretionary = 0.02) {
+                          price.elasticity.essential = 0, price.elasticity.discretionary = -0.02) {
 
   # Store number of tiers for current and proposed rates
   nt_c <- ifelse(is.null(df_rates), length(grep("rate_c", colnames(df_use))), length(grep("rate_c", colnames(df_rates))))
@@ -82,8 +82,8 @@ compare_bills <- function(df_use, df_rates, rate_group = c("class", "meter_size"
       class != "SFR" ~ use)) %>%
     mutate(use_discretionary = ifelse(use >= use.essential, use - use_essential, 0)) %>%
     # Conduct elasticity calculations on essential and discretionary use
-    mutate(use_prime_essential     = use_essential     - (price.elasticity.essential     * (avg_price_proposed - avg_price_current) / avg_price_current) * use_essential,
-           use_prime_discretionary = use_discretionary - (price.elasticity.discretionary * (avg_price_proposed - avg_price_current) / avg_price_current) * use_discretionary,
+    mutate(use_prime_essential     = use_essential     + (price.elasticity.essential     * (avg_price_proposed - avg_price_current) / avg_price_current) * use_essential,
+           use_prime_discretionary = use_discretionary + (price.elasticity.discretionary * (avg_price_proposed - avg_price_current) / avg_price_current) * use_discretionary,
            use_prime = use_prime_essential + use_prime_discretionary)%>%
     select(-c(use_prime_essential, use_prime_discretionary, use_essential, use_discretionary)) %>%
     # Allocate usage prime into tiers and calculate bill
