@@ -86,7 +86,7 @@ compare_bills <- function(df_use, df_rates, rate_group = c("class", "meter_size"
     # Conduct elasticity calculations on essential and discretionary use
     left_join(pel_params, by = "class") %>%
     mutate(price_elast_essential = ifelse(is.na(price_elast_essential), -0.15, price_elast_essential),
-           price_elast_discretionary = ifelse(is.na(price_elast_discretionary), -0.15, price_elast_essential))
+           price_elast_discretionary = ifelse(is.na(price_elast_discretionary), -0.15, price_elast_essential)) %>%
     mutate(use_prime_essential     = use_essential     + (price_elast_essential     * (avg_price_proposed - avg_price_current) / avg_price_current) * use_essential,
            use_prime_discretionary = use_discretionary + (price_elast_discretionary * (avg_price_proposed - avg_price_current) / avg_price_current) * use_discretionary,
            use_prime = use_prime_essential + use_prime_discretionary)%>%
