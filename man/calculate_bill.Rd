@@ -11,7 +11,7 @@ calculate_bill(df_use, df_rates, rate_group = c("class", "meter_size"))
 
 \item{df_rates}{\code{dataframe} that contains fixed and volumetric rates with suffix "_current". Set to \code{NULL} if widths and rates are already in \code{df_use}.}
 
-\item{rate_group}{\code{vector} of strings that uniquely identify rates.}
+\item{rate_group}{\code{vector} of strings for the group that defines unique rate structure.}
 }
 \value{
 This function returns a \code{dataframe} that includes the final bills under the current rate

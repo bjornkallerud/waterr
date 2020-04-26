@@ -5,14 +5,16 @@
 \title{Compare Water Bill}
 \usage{
 compare_bills(df_use, df_rates, rate_group = c("class", "meter_size"),
-  elasticity_par = 0, elasticity_response = "average")
+  use.essential = 2)
 }
 \arguments{
 \item{df_use}{\code{dataframe} that contains customer usage - var must be titled \code{usage} or \code{use}.}
 
 \item{df_rates}{\code{dataframe} that contains current and proposed fixed and volumetric rates.}
 
-\item{elasticity_par}{the elasticity parameter, default is set to zero which excludes elasticity from the analysis.}
+\item{rate_group}{\code{vector} of strings for the group that defines unique rate structure.}
+
+\item{use.essential}{SFR usage (in same units as use) that is deemed essential. All usage for classes other than SFR is categorized as essential.}
 }
 \value{
 This function returns a \code{dataframe} that includes all final bills under the current and proposed rate

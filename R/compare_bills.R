@@ -31,7 +31,7 @@
 #                        fixed_current = c(20, 30), fixed_proposed = c(21, 32),
 #                        t1_rate_current = 2, t2_rate_current = 3, t1_rate_proposed = 1.9, t2_rate_proposed = 3, t3_rate_proposed = 5)
 
-compare_bills <- function(df_use, df_rates, rate_group = c("class", "meter_size"), use.essential = 10) {
+compare_bills <- function(df_use, df_rates, rate_group = c("class", "meter_size"), use.essential = 2) {
 
   # Define price elasticity according to customer class
   pel_params <- data.frame(class = c("SFR", "MFR", "IRR", "CNS", "CI"),
@@ -86,10 +86,10 @@ compare_bills <- function(df_use, df_rates, rate_group = c("class", "meter_size"
     # Conduct elasticity calculations on essential and discretionary use
     left_join(pel_params, by = "class") %>%
     mutate(price_elast_essential = ifelse(is.na(price_elast_essential), -0.15, price_elast_essential),
-           price_elast_discretionary = ifelse(is.na(price_elast_discretionary), -0.15, price_elast_essential)) %>%
+           price_elast_discretionary = ifelse(is.na(price_elast_discretionary), -0.15, price_elast_discretionary)) %>%
     mutate(use_prime_essential     = use_essential     + (price_elast_essential     * (avg_price_proposed - avg_price_current) / avg_price_current) * use_essential,
            use_prime_discretionary = use_discretionary + (price_elast_discretionary * (avg_price_proposed - avg_price_current) / avg_price_current) * use_discretionary,
-           use_prime = use_prime_essential + use_prime_discretionary)%>%
+           use_prime = use_prime_essential + use_prime_discretionary) %>%
     select(-c(use_prime_essential, use_prime_discretionary, use_essential, use_discretionary)) %>%
     # Allocate usage prime into tiers and calculate bill
     allocate_consumption(suffix = "_proposed", use.prime = T)
