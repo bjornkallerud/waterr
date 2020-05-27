@@ -2,6 +2,7 @@
 
 export(TierConsumption)
 export(WaterBill)
+export(add_leading_zero)
 export(allocate_consumption)
 export(calculate_bill)
 export(compare_bills)

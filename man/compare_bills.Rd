@@ -5,7 +5,7 @@
 \title{Compare Water Bill}
 \usage{
 compare_bills(df_use, df_rates, rate_group = c("class", "meter_size"),
-  use.essential = 2)
+  use.essential = 10)
 }
 \arguments{
 \item{df_use}{\code{dataframe} that contains customer usage - var must be titled \code{usage} or \code{use}.}
