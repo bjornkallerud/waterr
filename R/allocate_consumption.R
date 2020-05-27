@@ -47,8 +47,8 @@ allocate_consumption <- function(df, suffix = NULL, use.prime = FALSE) {
   # Allocate usage
   df <- df %>%
     {if(exists(paste0("t1_width", suffix))) mutate(., t1_use = ifelse(use > t1_max, t1_max, use),
-                                   t2_use = ifelse(use > t1_max, ifelse(use >= t2_max, t2_max - t1_max, use - t1_max), 0)) else
-                                     mutate(., t1_use = use)} %>%
+                                                   t2_use = ifelse(use > t1_max, ifelse(use >= t2_max, t2_max - t1_max, use - t1_max), 0)) else
+                                                     mutate(., t1_use = use)} %>%
     {if(exists(paste0("t2_width", suffix))) mutate(., t3_use = ifelse(use > t2_max, ifelse(use > t3_max, t3_max - t2_max, use - t2_max), 0)) else .} %>%
     {if(exists(paste0("t3_width", suffix))) mutate(., t4_use = ifelse(use > t3_max, ifelse(use > t4_max, t4_max - t3_max, use - t3_max), 0)) else .} %>%
     {if(exists(paste0("t4_width", suffix))) mutate(., t5_use = ifelse(use > t4_max, ifelse(use > t5_max, t5_max - t4_max, use - t4_max), 0)) else .} %>%
