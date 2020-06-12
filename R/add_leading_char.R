@@ -13,21 +13,21 @@
 #' @export
 #'
 
-add_leading_zero <- function(target, n) {
-  
+add_leading_char <- function(target, n, char = "0") {
+
   if (max(nchar(target)) > n) {
     stop("One or more strings have more than the maximum number of characters.")
   }
-  
+
   case_when(
-    nchar(target) == n ~ target,
-    nchar(target) == (n - 1) ~ paste0("0", target),
-    nchar(target) == (n - 2) ~ paste0("00", target),
-    nchar(target) == (n - 3) ~ paste0("000", target),
-    nchar(target) == (n - 4) ~ paste0("0000", target),
-    nchar(target) == (n - 5) ~ paste0("00000", target)
+    nchar(target) == n ~ as.character(target),
+    nchar(target) == (n - 1) ~ paste0(rep(char, 1), target),
+    nchar(target) == (n - 2) ~ paste0(rep(char, 2), target),
+    nchar(target) == (n - 3) ~ paste0(rep(char, 3), target),
+    nchar(target) == (n - 4) ~ paste0(rep(char, 4), target),
+    nchar(target) == (n - 5) ~ paste0(rep(char, 5), target)
   )
-  
+
 }
 
 
