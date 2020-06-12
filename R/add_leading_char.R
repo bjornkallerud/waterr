@@ -21,11 +21,14 @@ add_leading_char <- function(target, n, char = "0") {
 
   case_when(
     nchar(target) == n ~ as.character(target),
-    nchar(target) == (n - 1) ~ paste0(rep(char, 1), target),
-    nchar(target) == (n - 2) ~ paste0(rep(char, 2), target),
-    nchar(target) == (n - 3) ~ paste0(rep(char, 3), target),
-    nchar(target) == (n - 4) ~ paste0(rep(char, 4), target),
-    nchar(target) == (n - 5) ~ paste0(rep(char, 5), target)
+    nchar(target) == (n - 1) ~ paste0(paste(rep(char, 1), collapse = ""), target),
+    nchar(target) == (n - 2) ~ paste0(paste(rep(char, 2), collapse = ""), target),
+    nchar(target) == (n - 3) ~ paste0(paste(rep(char, 3), collapse = ""), target),
+    nchar(target) == (n - 4) ~ paste0(paste(rep(char, 4), collapse = ""), target),
+    nchar(target) == (n - 5) ~ paste0(paste(rep(char, 5), collapse = ""), target),
+    nchar(target) == (n - 6) ~ paste0(paste(rep(char, 6), collapse = ""), target),
+    nchar(target) == (n - 7) ~ paste0(paste(rep(char, 7), collapse = ""), target),
+    nchar(target) == (n - 8) ~ paste0(paste(rep(char, 8), collapse = ""), target),
   )
 
 }
