@@ -4,10 +4,21 @@
 \alias{WaterBill}
 \title{Water Bill Calculation}
 \usage{
-WaterBill(df, uniform_rates = TRUE, nt_c, wdths_c = NULL,
-  fxd_c = NULL, vol_c = NULL, proposed_rates = TRUE,
-  elasticity_par = 0, elasticity_response = "average", nt_p = NULL,
-  wdths_p = NULL, fxd_p = NULL, vol_p = NULL)
+WaterBill(
+  df,
+  uniform_rates = TRUE,
+  nt_c,
+  wdths_c = NULL,
+  fxd_c = NULL,
+  vol_c = NULL,
+  proposed_rates = TRUE,
+  elasticity_par = 0,
+  elasticity_response = "average",
+  nt_p = NULL,
+  wdths_p = NULL,
+  fxd_p = NULL,
+  vol_p = NULL
+)
 }
 \arguments{
 \item{df}{\code{dataframe} that contains customer usage - var must be titled \code{usage}. If rates are not uniform across

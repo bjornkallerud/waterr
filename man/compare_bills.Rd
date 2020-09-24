@@ -4,8 +4,13 @@
 \alias{compare_bills}
 \title{Compare Water Bill}
 \usage{
-compare_bills(df_use, df_rates, rate_group = c("class", "meter_size"),
-  use.essential = 10)
+compare_bills(
+  df_use,
+  df_rates,
+  rate_group = c("class", "meter_size"),
+  skip_allocation = FALSE,
+  use.essential = 10
+)
 }
 \arguments{
 \item{df_use}{\code{dataframe} that contains customer usage - var must be titled \code{usage} or \code{use}.}
@@ -13,6 +18,8 @@ compare_bills(df_use, df_rates, rate_group = c("class", "meter_size"),
 \item{df_rates}{\code{dataframe} that contains current and proposed fixed and volumetric rates.}
 
 \item{rate_group}{\code{vector} of strings for the group that defines unique rate structure.}
+
+\item{skip_allocation}{set to TRUE if customer usage has already been allocated among tiers.}
 
 \item{use.essential}{SFR usage (in same units as use) that is deemed essential. All usage for classes other than SFR is categorized as essential.}
 }

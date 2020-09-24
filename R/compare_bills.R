@@ -10,6 +10,7 @@
 #' @param df_use \code{dataframe} that contains customer usage - var must be titled \code{usage} or \code{use}.
 #' @param df_rates \code{dataframe} that contains current and proposed fixed and volumetric rates.
 #' @param rate_group \code{vector} of strings for the group that defines unique rate structure.
+#' @param skip_allocation set to TRUE if customer usage has already been allocated among tiers.
 #' @param use.essential SFR usage (in same units as use) that is deemed essential. All usage for classes other than SFR is categorized as essential.
 #'
 #' @return This function returns a \code{dataframe} that includes all final bills under the current and proposed rate
@@ -31,7 +32,7 @@
 #                        fixed_current = c(20, 30), fixed_proposed = c(21, 32),
 #                        t1_rate_current = 2, t2_rate_current = 3, t1_rate_proposed = 1.9, t2_rate_proposed = 3, t3_rate_proposed = 5)
 
-compare_bills <- function(df_use, df_rates, rate_group = c("class", "meter_size"), use.essential = 10) {
+compare_bills <- function(df_use, df_rates, rate_group = c("class", "meter_size"), skip_allocation = FALSE, use.essential = 10) {
 
   # Define price elasticity according to customer class
   pel_params <- data.frame(class = c("SFR", "MFR", "IRR", "CNS", "CI"),
@@ -62,9 +63,14 @@ compare_bills <- function(df_use, df_rates, rate_group = c("class", "meter_size"
   charge_cols_prime <- paste0("t", 1:nt_p, "charges_prime")
 
   # Allocate consumption
-  df <- df %>%
-    allocate_consumption(suffix = "_current") %>%
-    allocate_consumption(suffix = "_proposed")
+  if (skip_allocation == F) {
+
+    df <- df %>%
+      allocate_consumption(suffix = "_current") %>%
+      allocate_consumption(suffix = "_proposed")
+
+  }
+
 
   # Calculate charges
   df[charge_cols_current]  <- df[use_cols_current]  * df[rate_cols_current]
@@ -103,3 +109,4 @@ compare_bills <- function(df_use, df_rates, rate_group = c("class", "meter_size"
   return(df)
 
 }
+

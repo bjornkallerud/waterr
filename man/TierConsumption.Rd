@@ -4,8 +4,15 @@
 \alias{TierConsumption}
 \title{Calculate Tier Use}
 \usage{
-TierConsumption(nt, usage, t1width, t2width = NULL, t3width = NULL,
-  t4width = NULL, t5width = NULL)
+TierConsumption(
+  nt,
+  usage,
+  t1width,
+  t2width = NULL,
+  t3width = NULL,
+  t4width = NULL,
+  t5width = NULL
+)
 }
 \arguments{
 \item{nt}{integer that contains the number of tiers of the rate structure}
