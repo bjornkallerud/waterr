@@ -36,7 +36,7 @@ compare_bills <- function(df_use, df_rates, rate_group = c("class", "meter_size"
 
   # Define price elasticity according to customer class
   pel_params <- data.frame(class = c("SFR", "MFR", "IRR", "CNS", "CI"),
-                           price_elast_essential = c(-0.05, -0.05, -0.15, -0.15, -0.15),
+                           price_elast_essential =     c( 0.00, -0.05, -0.15, -0.15, -0.15),
                            price_elast_discretionary = c(-0.15, -0.05, -0.15, -0.15, -0.15))
 
   # Store number of tiers for current and proposed rates
@@ -71,7 +71,6 @@ compare_bills <- function(df_use, df_rates, rate_group = c("class", "meter_size"
 
   }
 
-
   # Calculate charges
   df[charge_cols_current]  <- df[use_cols_current]  * df[rate_cols_current]
   df[charge_cols_proposed] <- df[use_cols_proposed] * df[rate_cols_proposed]
@@ -104,7 +103,9 @@ compare_bills <- function(df_use, df_rates, rate_group = c("class", "meter_size"
 
   df <- df %>%
     mutate(bill_prime = round(fixed_proposed + rowSums(df[charge_cols_prime]), 2),
-           perc_change_bill = (bill_prime - bill_current) / bill_current)
+           perc_change_bill = (bill_proposed - bill_current) / bill_current,
+           perc_change_bill_el = (bill_prime - bill_current) / bill_current
+           )
 
   return(df)
 
