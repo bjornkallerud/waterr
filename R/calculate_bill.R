@@ -4,13 +4,12 @@
 #' Calculates customers' water bills based on fixed and volumetric rates. There is an option to include both current
 #' and proposed rate structures to assess bill impacts.
 #'
-#' BillCalculation <- function(df, elasticity = 0.0, nt_c, nt_p = NULL, uniform_rates = TRUE, proposed_rates = TRUE,
-#wdths_c = NULL, wdths_p = NULL, fxd_c = NULL, fxd_p = NULL, vol_c = NULL, vol_p = NULL)
+#' calculate_bill <- function(df_use, df_rates, rate_group = c("class", "meter_size"), suffix = "current")
 #'
 #' @param df_use \code{dataframe} that contains customer usage - var must be titled \code{usage} or \code{use}.
 #' @param df_rates \code{dataframe} that contains fixed and volumetric rates with suffix "_current". Set to \code{NULL} if widths and rates are already in \code{df_use}.
 #' @param rate_group \code{vector} of strings for the group that defines unique rate structure.
-#'
+#' @param suffix calculate bill based on \code{current} or \code{proposed} rate structure.
 #' @return This function returns a \code{dataframe} that includes the final bills under the current rate
 #' structure as well as the bill's respective tier components.
 #'
@@ -23,7 +22,10 @@
 
 calculate_bill <- function(df_use, df_rates, rate_group = c("class", "meter_size"), suffix = "current") {
 
-  #
+  # Throw error if suffix is not current or proposed
+  if (suffix != "current" | suffix != "proposed") {
+    break("Invalid suffix.")
+  }
 
   # Store number of tiers for current and proposed rates
   nt <- ifelse(is.null(df_rates), length(grep(if (suffix == "current") "rate_c" else if (suffix == "proposed") "rate_p", colnames(df_use))),
@@ -55,6 +57,5 @@ calculate_bill <- function(df_use, df_rates, rate_group = c("class", "meter_size
     {if (suffix == "current") rename(., bill_current = bill_calculated) else if (suffix == "proposed") rename(., bill_proposed = bill_calculated)}
 
   return(df)
-
 
 }

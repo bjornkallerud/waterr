@@ -4,7 +4,12 @@
 \alias{calculate_bill}
 \title{Calculate Water Bill}
 \usage{
-calculate_bill(df_use, df_rates, rate_group = c("class", "meter_size"))
+calculate_bill(
+  df_use,
+  df_rates,
+  rate_group = c("class", "meter_size"),
+  suffix = "current"
+)
 }
 \arguments{
 \item{df_use}{\code{dataframe} that contains customer usage - var must be titled \code{usage} or \code{use}.}
@@ -12,6 +17,8 @@ calculate_bill(df_use, df_rates, rate_group = c("class", "meter_size"))
 \item{df_rates}{\code{dataframe} that contains fixed and volumetric rates with suffix "_current". Set to \code{NULL} if widths and rates are already in \code{df_use}.}
 
 \item{rate_group}{\code{vector} of strings for the group that defines unique rate structure.}
+
+\item{suffix}{calculate bill based on \code{current} or \code{proposed} rate structure.}
 }
 \value{
 This function returns a \code{dataframe} that includes the final bills under the current rate
@@ -22,7 +29,7 @@ Calculates customers' water bills based on fixed and volumetric rates. There is 
 and proposed rate structures to assess bill impacts.
 }
 \details{
-BillCalculation <- function(df, elasticity = 0.0, nt_c, nt_p = NULL, uniform_rates = TRUE, proposed_rates = TRUE,
+calculate_bill <- function(df_use, df_rates, rate_group = c("class", "meter_size"), suffix = "current")
 }
 \author{
 Bjorn Kallerud
