@@ -24,7 +24,7 @@ calculate_bill <- function(df_use, df_rates, rate_group = c("class", "meter_size
 
   # Throw error if suffix is not current or proposed
   if (suffix != "current" | suffix != "proposed") {
-    break("Invalid suffix.")
+    stop("Invalid suffix.")
   }
 
   # Store number of tiers for current and proposed rates
