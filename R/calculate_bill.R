@@ -21,10 +21,13 @@
 #' @export
 #'
 
-calculate_bill <- function(df_use, df_rates, rate_group = c("class", "meter_size")) {
+calculate_bill <- function(df_use, df_rates, rate_group = c("class", "meter_size"), suffix = "current") {
+
+  #
 
   # Store number of tiers for current and proposed rates
-  nt_c <- ifelse(is.null(df_rates), length(grep("rate_c", colnames(df_use))), length(grep("rate_c", colnames(df_rates))))
+  nt <- ifelse(is.null(df_rates), length(grep(if (suffix == "current") "rate_c" else if (suffix == "proposed") "rate_p", colnames(df_use))),
+               length(grep(if (suffix == "current") "rate_c" else if (suffix == "proposed") "rate_p", colnames(df_rates))))
 
   # Join use and rate dataframes
   if (!is.null(df_rates)) {
@@ -34,22 +37,24 @@ calculate_bill <- function(df_use, df_rates, rate_group = c("class", "meter_size
 
   ## Group columns for calculations
   # Current
-  use_cols_current    <- paste0("t", 1:nt_c, "_use_current")
-  width_cols_current  <- paste0("t", 1:(nt_c - 1), "_width_current")
-  rate_cols_current   <- paste0("t", 1:nt_c, "_rate_current")
-  charge_cols_current <- paste0("t", 1:nt_c, "_charges_current")
+  use_cols    <- paste0("t", 1:nt, if (suffix == "current") "_use_current" else if (suffix == "proposed") "_use_proposed")
+  width_cols  <- paste0("t", 1:(nt - 1), if (suffix == "current") "_width_current" else if (suffix == "proposed") "_width_proposed")
+  rate_cols   <- paste0("t", 1:nt, if (suffix == "current") "_rate_current" else if (suffix == "proposed") "_rate_proposed")
+  charge_cols <- paste0("t", 1:nt, if (suffix == "current") "_charges_current" else if (suffix == "proposed") "_charges_proposed")
 
   # Allocate consumption
   df <- df %>%
-    allocate_consumption(suffix = "_current")
+    allocate_consumption(suffix = paste0("_", suffix))
 
   # Calculate charges
-  df[charge_cols_current]  <- df[use_cols_current] * df[rate_cols_current]
+  df[charge_cols]  <- df[use_cols] * df[rate_cols]
 
   # Calculate total bill
   df <- df %>%
-    mutate(bill_current  = round(fixed_current  + rowSums(df[charge_cols_current ]), 2))
+    mutate(bill_calculated  = round(fixed_current  + rowSums(df[charge_cols_current ]), 2)) %>%
+    {if (suffix == "current") rename(., bill_current = bill_calculated) else if (suffix == "proposed") rename(., bill_proposed = bill_calculated)}
 
   return(df)
+
 
 }
