@@ -54,7 +54,7 @@ calculate_bill <- function(df_use, df_rates, rate_group = c("class", "meter_size
   # Calculate total bill
   df <- df %>%
     {if (suffix == "current") mutate(., bill_current = round(fixed_current + rowSums(df[charge_cols]), 2)) else
-      if (suffix == "proposed") rename(., bill_proposed = round(fixed_proposed + rowSums(df[charge_cols]), 2))}
+      if (suffix == "proposed") mutate(., bill_proposed = round(fixed_proposed + rowSums(df[charge_cols]), 2))}
 
   return(df)
 
