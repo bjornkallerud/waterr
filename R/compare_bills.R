@@ -86,7 +86,7 @@ compare_bills <- function(df_use, df_rates, rate_group = c("class", "meter_size"
     mutate(use_essential = case_when(
       class == "SFR" & use >= use.essential ~ use.essential,
       class == "SFR" & use <  use.essential ~ use,
-      class != "SFR" ~ use)) #%>%
+      class != "SFR" ~ use)) %>%
     mutate(use_discretionary = ifelse(use >= use.essential, use - use_essential, 0)) %>%
     # Conduct elasticity calculations on essential and discretionary use
     left_join(pel_params, by = "class") %>%
