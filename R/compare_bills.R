@@ -35,9 +35,9 @@
 compare_bills <- function(df_use, df_rates, rate_group = c("class", "meter_size"), skip_allocation = FALSE, use.essential = 10) {
 
   # Define price elasticity according to customer class
-  pel_params <- data.frame(class = c("SFR", "MFR", "IRR", "CNS", "CI"),
-                           price_elast_essential =     c( 0.00, -0.05, -0.15, -0.15, -0.15),
-                           price_elast_discretionary = c(-0.15, -0.05, -0.15, -0.15, -0.15))
+  pel_params <- data.frame(class = c("SFR", "RES", "MFR", "IRR", "CNS", "CI"),
+                           price_elast_essential =     c( 0.00, 0.00,  -0.05, -0.15, -0.15, -0.15),
+                           price_elast_discretionary = c(-0.15, -0.15, -0.05, -0.15, -0.15, -0.15))
 
   # Store number of tiers for current and proposed rates
   nt_c <- ifelse(is.null(df_rates), length(grep("rate_c", colnames(df_use))), length(grep("rate_c", colnames(df_rates))))
