@@ -54,6 +54,8 @@ allocate_consumption <- function(df, suffix = NULL, use.prime = FALSE) {
     {if(exists(paste0("t4_width", suffix))) mutate(., t5_use = ifelse(use > t4_max, ifelse(use > t5_max, t5_max - t4_max, use - t4_max), 0)) else .} %>%
     {if(exists(paste0("t5_width", suffix))) mutate(., t6_use = ifelse(use > t5_max, use - t5_max, 0)) else .}
 
+  detach(df)
+
   # Drop maximums
   df <- df %>% select(., - contains("max"))
 
@@ -68,7 +70,6 @@ allocate_consumption <- function(df, suffix = NULL, use.prime = FALSE) {
              use = use_tmp)
   }
 
-  detach(df)
   return(df)
 
 }

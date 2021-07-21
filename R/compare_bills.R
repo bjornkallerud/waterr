@@ -76,7 +76,7 @@ compare_bills <- function(df_use, df_rates, rate_group = c("class", "meter_size"
   df[charge_cols_proposed] <- df[use_cols_proposed] * df[rate_cols_proposed]
 
   # Calculate total bill
-  df <- df %>%
+  dft <- df %>%
     mutate(bill_current  = round(fixed_current  + rowSums(df[charge_cols_current ]), 2)) %>%
     mutate(bill_proposed = round(fixed_proposed + rowSums(df[charge_cols_proposed]), 2)) %>%
     mutate(avg_price_current  = ifelse(is.infinite(bill_current  / use), 99999999, bill_current  / use)) %>%
