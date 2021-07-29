@@ -8,6 +8,7 @@ compare_bills(
   df_use,
   df_rates,
   rate_group = c("class", "meter_size"),
+  include_elasticity = F,
   skip_allocation = FALSE,
   use.essential = 10
 )
@@ -22,6 +23,8 @@ compare_bills(
 \item{skip_allocation}{set to TRUE if customer usage has already been allocated among tiers.}
 
 \item{use.essential}{SFR usage (in same units as use) that is deemed essential. All usage for classes other than SFR is categorized as essential.}
+
+\item{skip_include_elasticity}{set to TRUE if you want to include price elasticity calculations}
 }
 \value{
 This function returns a \code{dataframe} that includes all final bills under the current and proposed rate
