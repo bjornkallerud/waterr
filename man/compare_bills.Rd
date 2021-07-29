@@ -8,7 +8,7 @@ compare_bills(
   df_use,
   df_rates,
   rate_group = c("class", "meter_size"),
-  include_elasticity = F,
+  include_elasticity = FALSE,
   skip_allocation = FALSE,
   use.essential = 10
 )

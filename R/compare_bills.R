@@ -33,7 +33,7 @@
 #                        fixed_current = c(20, 30), fixed_proposed = c(21, 32),
 #                        t1_rate_current = 2, t2_rate_current = 3, t1_rate_proposed = 1.9, t2_rate_proposed = 3, t3_rate_proposed = 5)
 
-compare_bills <- function(df_use, df_rates, rate_group = c("class", "meter_size"), include_elasticity = F, skip_allocation = FALSE, use.essential = 10) {
+compare_bills <- function(df_use, df_rates, rate_group = c("class", "meter_size"), include_elasticity = FALSE, skip_allocation = FALSE, use.essential = 10) {
 
   # Define price elasticity according to customer class
   pel_params <- data.frame(class = c("SFR", "RES", "MFR", "IRR", "CNS", "CI"),
