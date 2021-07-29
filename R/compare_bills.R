@@ -10,7 +10,7 @@
 #' @param df_use \code{dataframe} that contains customer usage - var must be titled \code{usage} or \code{use}.
 #' @param df_rates \code{dataframe} that contains current and proposed fixed and volumetric rates.
 #' @param rate_group \code{vector} of strings for the group that defines unique rate structure.
-#' @param skip_include_elasticity set to TRUE if you want to include price elasticity calculations
+#' @param include_elasticity set to TRUE if you want to include price elasticity calculations
 #' @param skip_allocation set to TRUE if customer usage has already been allocated among tiers.
 #' @param use.essential SFR usage (in same units as use) that is deemed essential. All usage for classes other than SFR is categorized as essential.
 #'

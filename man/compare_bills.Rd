@@ -20,11 +20,11 @@ compare_bills(
 
 \item{rate_group}{\code{vector} of strings for the group that defines unique rate structure.}
 
+\item{include_elasticity}{set to TRUE if you want to include price elasticity calculations}
+
 \item{skip_allocation}{set to TRUE if customer usage has already been allocated among tiers.}
 
 \item{use.essential}{SFR usage (in same units as use) that is deemed essential. All usage for classes other than SFR is categorized as essential.}
-
-\item{skip_include_elasticity}{set to TRUE if you want to include price elasticity calculations}
 }
 \value{
 This function returns a \code{dataframe} that includes all final bills under the current and proposed rate
